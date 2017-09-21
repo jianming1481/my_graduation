@@ -23,7 +23,7 @@ void callback(const data::Request &req, data::Response &res)
   int tmp = 0;
   while(tmp < 14)
   {
-    Dynamixel.turn(1,LEFT,100);
+    Dynamixel.turn(1,LEFT,200);
     // Read position from AX12
     Position = Dynamixel.readPosition(1);
     tmp = Position-Pre_Position;

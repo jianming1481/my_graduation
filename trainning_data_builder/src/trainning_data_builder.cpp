@@ -26,8 +26,6 @@
 typedef pcl::PointXYZRGB PT;           //Point Type
 typedef pcl::PointCloud<PT> PCT;
 
-std::stringstream ssImage;
-std::stringstream ssPcd;
 
 class PointCloud
 {
@@ -36,18 +34,14 @@ public:
   PointCloud()
   {
     ROS_INFO("initialize...");
-    tm *ltm = localtime(&now);
 
     cloud = PCT::Ptr (new PCT);
 
     point_sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &PointCloud::PointCallback, this);
     image_sub_ = nh_.subscribe("/camera/rgb/image_color", 1, &PointCloud::ImageCallback, this);
-    data_server =nh_.advertiseService("/trainning_data_builder/save", &PointCloud::save,this);
+    rotate_platfrom_client = nh_.serviceClient<trainning_data_builder::data>("/trainning_data_builder/save");
 
-    tmpString_ = "";
     tmpCount_ = 1;
-    labelCount_ = 1;
-    wait_key = false;
 
     cv::namedWindow("view");
     ROS_INFO("OK");
@@ -66,7 +60,7 @@ public:
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
       
       cv::imshow("view", cv_bridge::toCvShare(msg, "bgr8")->image);
-      cv::waitKey(30);
+      cv::waitKey(1);
     }
     catch (cv_bridge::Exception& e)
     {
@@ -83,7 +77,6 @@ public:
     try
     {
       pcl::fromROSMsg(*msg, *cloud);
-      // std::cout << "\tGet Cloud : " << TimeCallback() << '\r';
     }
     catch (std::runtime_error e)
     {
@@ -92,54 +85,31 @@ public:
     }
   }
 
-  bool save(trainning_data_builder::data::Request  &req,
-                  trainning_data_builder::data::Response &res)
+  void save()
   {
-    if (tmpString_ != req.str) {
-      tmpString_ = req.str;
-      tmpCount_ = 1;
-    }
-    printf("Press %d:",cv::waitKey(999999));
-    if(wait_key)
-    {
-      printf("Press %d:",cv::waitKey(300));
-      if(cv::waitKey(300)==13)
-      {
-        wait_key = false;
-      }
-    }
-    if(tmpCount_%5==0)
-    {
-      labelCount_++;
-      res.success = false;
-      wait_key = true;
-    }else{
-      ROS_INFO("Save Pcd and Image : %s_%05d", req.str.c_str(), tmpCount_);
-      std::stringstream s1;
+    ROS_INFO("Save Pcd and Image : training_data_%05d", tmpCount_);
+    std::stringstream s1;
 
-      // Save Point Cloud 
-      s1 << ros::package::getPath("trainning_data_builder") << "/pattern/pcd_file/"
-        << tmpString_ << "_" << std::setfill('0') << std::setw(5) << tmpCount_ << ".pcd";
-      writer.write<PT> (s1.str(), *cloud, false);
+    // Save Point Cloud 
+    s1 << ros::package::getPath("trainning_data_builder") << "/pattern/pcd_file/training_data_"
+      << std::setfill('0') << std::setw(5) << tmpCount_ << ".pcd";
+    writer.write<PT> (s1.str(), *cloud, false);
 
-      s1.str("");
-      s1.clear();
+    s1.str("");
+    s1.clear();
 
-      // Save Image
-      s1 << ros::package::getPath("trainning_data_builder") << "/pattern/ori_img/"
-        << tmpString_ << "_" << std::setfill('0') << std::setw(5) << tmpCount_ << ".jpg";
-      cv::imwrite(s1.str(), image);
+    // Save Image
+    s1 << ros::package::getPath("trainning_data_builder") << "/pattern/ori_img/training_data_"
+      << std::setfill('0') << std::setw(5) << tmpCount_ << ".jpg";
+    cv::imwrite(s1.str(), image);
 
-      s1.str("");
-      s1.clear();
+    s1.str("");
+    s1.clear();
 
-      build_data(tmpString_);
-      tmpCount_++;
-      res.success = true;
-    }
+    tmpCount_++;
   }
 
-  void build_data(std::string tmpString_)
+  void build_data(int label_number)
   {
     if ((cloud->width * cloud->height) == 0)
     {
@@ -162,7 +132,7 @@ public:
     {
       tmp_y = index[i]%cloud->width+1;
       tmp_x = index[i]/cloud->width+1;
-      tmp_data.at<uchar>(tmp_x,tmp_y)=labelCount_;
+      tmp_data.at<uchar>(tmp_x,tmp_y)=label_number;
     }
 
     ROS_INFO("Doing dilate!");
@@ -174,11 +144,11 @@ public:
     dilate(tmp_data,tmp_data, cv::Mat());
     dilate(tmp_data,tmp_data, cv::Mat());
 
-    ROS_INFO("Save trainning data : %s_%05d", tmpString_.c_str(), tmpCount_);
+    ROS_INFO("Save trainning data : training_data_%05d", tmpCount_);
 
     std::stringstream s1;
-    s1 << ros::package::getPath("trainning_data_builder") << "/pattern/label_img/"
-       << tmpString_ << "_gt_" << std::setfill('0') << std::setw(5) << tmpCount_ << ".jpg";
+    s1 << ros::package::getPath("trainning_data_builder") << "/pattern/label_img/training_data"
+       << "_gt_" << std::setfill('0') << std::setw(5) << tmpCount_ << ".jpg";
     cv::imwrite( s1.str(), tmp_data );
 
     s1.str("");
@@ -188,50 +158,49 @@ public:
     delete [] data;
   }
 
-  std::string TimeCallback()
+  void call_server()
   {
-    std::stringstream ts;
-  
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
-    ts << 1900+ltm->tm_year << "/" << 1+ltm->tm_mon << "/" << ltm->tm_mday
-       << "-" << std::setfill('0') << std::setw(2) << ltm->tm_hour
-       << ":" << std::setfill('0') << std::setw(2) << ltm->tm_min
-       << ":" << std::setfill('0') << std::setw(2) << ltm->tm_sec;
-    return ts.str();
+    trainning_data_builder::data test;
+    test.request.str = "test";
+    rotate_platfrom_client.call(test);
   }
-
 
 private:
   ros::NodeHandle nh_;
   ros::Subscriber point_sub_;
-  ros::Subscriber savePcd_;
   ros::Subscriber image_sub_;
-  ros::Publisher image_pub_;
-  ros::Publisher point_pub_;
-  ros::ServiceServer data_server;
-
-  sensor_msgs::Image image_;
-  sensor_msgs::PointCloud2 pc2;
+  ros::ServiceClient rotate_platfrom_client;
 
   // PCT cloud;
   PCT::Ptr cloud;
   pcl::PCDWriter writer;
   cv::Mat image;
 
-  std::string tmpString_;
   int tmpCount_;
-  int labelCount_;
-  bool wait_key;
-
-  time_t now;
 };
 
 int main(int argc, char** argv)
 {
+  int label_number = 50;
   ros::init(argc, argv, "trainning_data_builder");
   PointCloud pc;
-
-  ros::spin();
+  ros::Rate loop_rate(30);
+  while(ros::ok())
+  {
+    if(cv::waitKey(30)==13)
+    {
+      for(int i=0;i<40;i++)
+      {
+        pc.save();
+        pc.build_data(label_number);
+        pc.call_server();
+        ros::spinOnce();
+        loop_rate.sleep();
+      }
+      label_number++;
+    }
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
   return 0;
 }
