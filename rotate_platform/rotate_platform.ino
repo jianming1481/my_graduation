@@ -27,11 +27,16 @@ void callback(const data::Request &req, data::Response &res)
     // Read position from AX12
     Position = Dynamixel.readPosition(1);
     tmp = Position-Pre_Position;
-    
-    // Prevent degree over from 360 to 0
-    if(tmp < 0)
+
+    // The encoder of AX12 motor only can record from 0 ~ 270
+    // To prevent motor stop between 270 to 360
+    // We make some process in this if function
+    if(tmp <= 0 || Position == 1023 || Position == 0)
     {
       Pre_Position = Position;
+      Dynamixel.turn(1,LEFT,200);
+      delay(100);
+      Dynamixel.turn(1,LEFT,0);
     }
     res.success = false;
   }
