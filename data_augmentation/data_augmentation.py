@@ -11,6 +11,8 @@
 import cv2
 import random
 import glob
+import numpy as np
+import sys
 
 # Declare Global Variable
 ori_img = None
@@ -93,6 +95,26 @@ def aug_data(ori_img, label_img):
         cv2.imwrite(file_name,tmp_label_img)
         f.write(file_name+"\n")
         foto_index += 1
+
+
+# To do grab cut algorithm, we use the labeled image to find ROI for futher work
+def find_ROI(label_img):
+    min_x = 999
+    min_y = 999
+    max_x = 0
+    max_y = 0
+    for y in range(0,480):
+        for x in range(0,640):
+            if label_img[y,x]>0:
+                if x < min_x:
+                    min_x = x
+                if y < min_y:
+                    min_y = y
+                if x > max_x:
+                    max_x = x
+                if y > max_y:
+                    max_y = y
+    return [max_x,max_y,min_x,min_y]
 
 if __name__ == "__main__":
     global foto_index
