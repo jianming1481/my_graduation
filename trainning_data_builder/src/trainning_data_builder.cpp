@@ -91,9 +91,9 @@ public:
     std::stringstream s1;
 
     // Save Point Cloud 
-    s1 << ros::package::getPath("trainning_data_builder") << "/pattern/pcd_file/training_data_"
-      << std::setfill('0') << std::setw(5) << tmpCount_ << ".pcd";
-    writer.write<PT> (s1.str(), *cloud, false);
+    // s1 << ros::package::getPath("trainning_data_builder") << "/pattern/pcd_file/training_data_"
+    //   << std::setfill('0') << std::setw(5) << tmpCount_ << ".pcd";
+    // writer.write<PT> (s1.str(), *cloud, false);
 
     s1.str("");
     s1.clear();
@@ -125,7 +125,7 @@ public:
     {
       data[i]=0;
     }
-    cv::Mat tmp_data(480,640, CV_8U, data);
+    cv::Mat tmp_data(480,640, CV_8UC1, data);
     pcl::removeNaNFromPointCloud(*cloud, *tmp_cloud, index);
     ROS_INFO("size of index = %d",index.size());
     for(int i=0;i<index.size();i++)
