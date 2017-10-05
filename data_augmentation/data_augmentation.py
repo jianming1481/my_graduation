@@ -25,8 +25,8 @@ def main():
     filename_ori_list, filename_label_list = load_data()
 
     # Augment the data and Generate the text document for loading data
-    # global f
-    # f = open('/home/iclab-gtx1080/data/train.txt','w')
+    global f
+    f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
 
     for i in range(1,len(filename_ori_list)+1):
         m_str = filename_ori_list.pop()
@@ -34,8 +34,8 @@ def main():
         m_str = filename_label_list.pop()
         label_img = cv2.imread(m_str)
         aug_data(ori_img, label_img)
-        
-    # f.close()
+    print("==================Finish data augmentation==================\n")
+    f.close()
 
 def load_data():
     # Declare Empty list to store the path of data
@@ -123,15 +123,17 @@ def add_obj_with_bg(tmp_ori_img):
 def aug_data(ori_img, label_img):
     # Declare Global Variable
     global foto_index
-    # global f
-    #
+    global f
+    g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
+
     # Save the original image to data
-    file_name = '/home/iclab-giga/Documents/training_data/my_data/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+
+    file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,ori_img)
-    # f.write(file_name+" ")
-    file_name = '/home/iclab-giga/Documents/training_data/my_data/data/label_img/training_data_'+str(foto_index)+'.jpg'
+    f.write(file_name+" ")
+    file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,label_img)
-    # f.write(file_name+"\n")
+    f.write(file_name+"\n")
     foto_index += 1
 
     # Doing grab cut for the data
@@ -140,7 +142,7 @@ def aug_data(ori_img, label_img):
     ori_item = my_grab_cut(ori_img,rect)
     label_item = my_grab_cut(label_img,rect)
 
-    for i in range(2,11):
+    for i in range(2,21):
         # Init some parameter to change scale or rotate or translate
         max_rows, max_cols = ori_img.shape[:2]
         random.seed(None)
@@ -163,13 +165,22 @@ def aug_data(ori_img, label_img):
         tmp_ori_img = add_obj_with_bg(tmp_ori_img)
 
         # Save Image
-        file_name = '/home/iclab-giga/Documents/training_data/my_data/data/ori_img/training_data_'+str(foto_index)+'.jpg'
-        cv2.imwrite(file_name,tmp_ori_img)
-        # f.write(file_name+" ")
-        file_name = '/home/iclab-giga/Documents/training_data/my_data/data/label_img/training_data_'+str(foto_index)+'.jpg'
-        cv2.imwrite(file_name,tmp_label_img)
-        # f.write(file_name+"\n")
+        if i>15:
+            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,tmp_ori_img)
+            g.write(file_name+" ")
+            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,tmp_label_img)
+            g.write(file_name+"\n")
+        else:
+            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,tmp_ori_img)
+            f.write(file_name+" ")
+            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,tmp_label_img)
+            f.write(file_name+"\n")
         foto_index += 1
+    g.close()
 
 if __name__ == "__main__":
     global foto_index

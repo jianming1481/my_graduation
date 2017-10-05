@@ -3,4 +3,7 @@ trainning_data_builder/ros_lib/*
 
 # photo for data
 trainning_data_builder/pattern/*
+data_augmentation/data/* 
 
+# pycharm file
+.idea/*
