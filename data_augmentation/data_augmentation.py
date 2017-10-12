@@ -27,7 +27,8 @@ def main():
     # Augment the data and Generate the text document for loading data
     global f
     f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
-
+    g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
+    g.close()
     for i in range(1,len(filename_ori_list)+1):
         m_str = filename_ori_list.pop()
         ori_img = cv2.imread(m_str)
@@ -128,11 +129,12 @@ def aug_data(ori_img, label_img):
 
     # Save the original image to data
 
-    file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+    file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,ori_img)
     f.write(file_name+" ")
-    file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
-    cv2.imwrite(file_name,label_img)
+    file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+    label_img_8UC1 = cv2.cvtColor(label_img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(file_name,label_img_8UC1)
     f.write(file_name+"\n")
     foto_index += 1
 
@@ -166,18 +168,20 @@ def aug_data(ori_img, label_img):
 
         # Save Image
         if i>15:
-            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             g.write(file_name+" ")
-            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
-            cv2.imwrite(file_name,tmp_label_img)
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            cv2.imwrite(file_name,tmp_label_img_8UC1)
             g.write(file_name+"\n")
         else:
-            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             f.write(file_name+" ")
-            file_name = '/home/iclab-giga/graduate_ws/src/data_augmentation/data/label_img/training_data_'+str(foto_index)+'.jpg'
-            cv2.imwrite(file_name,tmp_label_img)
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            cv2.imwrite(file_name,tmp_label_img_8UC1)
             f.write(file_name+"\n")
         foto_index += 1
     g.close()

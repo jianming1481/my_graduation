@@ -125,7 +125,10 @@ public:
     {
       data[i]=0;
     }
+    // Create 1 channel image for saving label data
     cv::Mat tmp_data(480,640, CV_8UC1, data);
+
+    // Find out all the index for Nan
     pcl::removeNaNFromPointCloud(*cloud, *tmp_cloud, index);
     ROS_INFO("size of index = %d",index.size());
     for(int i=0;i<index.size();i++)
