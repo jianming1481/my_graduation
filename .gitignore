@@ -18,3 +18,4 @@ pcl/robust_pose_estimation/build
 pcl/PCLVisualizer/build
 pcl/Hypothesis_Verification_for_3D_Object_Recognition/build
 pcl/normal_distributions_transform/build
+pcl/matrix_transform/build
