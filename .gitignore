@@ -8,6 +8,9 @@ data_augmentation/data/*
 # pycharm file
 .idea/*
 
+# resnet model
+deeplab_resnet/snapshots/*
+
 # all point cloud data
 *.pcd
 pcl/Point_cloud_data/*.pcd
