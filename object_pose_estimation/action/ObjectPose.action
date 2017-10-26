@@ -1,0 +1,13 @@
+#goal
+string object_name
+---
+#result
+geometry_msgs/Twist object_pose
+geometry_msgs/Vector3 norm
+bool success
+string error_msg
+string[] object_name_ary
+---
+#feedback
+int32 progress
+string msg
