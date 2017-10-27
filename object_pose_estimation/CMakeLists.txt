@@ -89,10 +89,8 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES object_pose_estimation
-#  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp rospy
-#  DEPENDS system_lib
+  LIBRARIES actionlib
+  CATKIN_DEPENDS actionlib_msgs message_runtime roscpp std_msgs geometry_msgs
 )
 
 ###########
@@ -135,7 +133,7 @@ include_directories(
 add_executable (object_pose_estimator src/object_pose_estimator.cpp)
 target_link_libraries (object_pose_estimator ${PCL_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(object_pose_estimator obj_pose_generate_messages_cpp)
-add_dependencies(object_pose_estimator darkflow_detect_generate_messages_cpp)
+
 
 #############
 ## Install ##
