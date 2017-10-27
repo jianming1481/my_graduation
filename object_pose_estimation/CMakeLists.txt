@@ -133,7 +133,7 @@ include_directories(
 add_executable (object_pose_estimator src/object_pose_estimator.cpp)
 target_link_libraries (object_pose_estimator ${PCL_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(object_pose_estimator obj_pose_generate_messages_cpp)
-
+add_dependencies(object_pose_estimator deeplab_resnet_pkg_generate_messages_cpp)
 
 #############
 ## Install ##

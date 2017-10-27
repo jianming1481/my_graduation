@@ -17,7 +17,7 @@ class ImageSubscriber(object):
 
   def __init__(self):
     self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.callback)
+    self.image_sub = rospy.Subscriber("/camera/rgb/image_raw",Image,self.callback,queue_size=1)
     self.__cv_image = None
 
   def callback(self,data):

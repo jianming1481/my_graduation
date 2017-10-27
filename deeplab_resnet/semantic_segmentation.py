@@ -116,7 +116,7 @@ def handle_semantic_segmentation(req):
     global sess
     global input_data
     img = img_scriber.get_img()
-    label_image_pub = rospy.Publisher("label_img",Image)
+    label_image_pub = rospy.Publisher("label_img",Image,queue_size=1)
 
     if not img is None:
         print('Semnatic Segmentation: inside handler received img!')
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     img_scriber = ImageSubscriber()
     build_resnet()
 
-    rospy.Service('do_semantic_segmentation', Segmentation, handle_semantic_segmentation)
+    rospy.Service('Semantic_Segmentation', Segmentation, handle_semantic_segmentation)
     
     rate = rospy.Rate(30) # 30hz
     while not rospy.is_shutdown():
