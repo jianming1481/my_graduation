@@ -26,6 +26,7 @@
 typedef pcl::PointXYZRGB PT;           //Point Type
 typedef pcl::PointCloud<PT> PCT;
 
+using namespace std;
 
 class PointCloud
 {

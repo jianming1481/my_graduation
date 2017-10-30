@@ -1,5 +1,5 @@
 #goal
-string object_name
+int32 object_label
 ---
 #result
 geometry_msgs/Twist object_pose

@@ -9,7 +9,8 @@
  *          Point Cloud:
  *  Output: 6D Pose: 
  ***********************************************************************/
-#include <string>
+ #include <iostream> 
+ #include <string>
 #include <boost/thread/thread.hpp>
 #include <Eigen/Core>
 
@@ -19,13 +20,24 @@
 // Include stuff about PCL
 #include "pcl_libraries.hpp"
 
+using namespace std;
+
 enum ProcessingState{
     NADA,
     FOTO,
     SEGMETATION,
     ALIGMENT,
-    POSE_ESTIMATION,
+    POSE_ESTIMATION
 }state, next_state;
+
+enum LabelList{
+  Back_Ground,
+  Hand_Weight,
+  Crayons,
+  Minion_Cup,
+  Koopa,
+  Robots_Everywhere
+}goal_label;
 
 namespace ObjEstAction_namespace
 {
@@ -39,14 +51,16 @@ public:
     // Initial the parameter
     as_(nh_, name, false),
     action_name_(name),
-    scene_cloud(new PCT)
+    scene_cloud(new PCT),
+    index_list(new int)
     {
       // Regist the action in ROS
       as_.registerGoalCallback(boost::bind(&ObjEstAction::goalCB, this));
       as_.registerPreemptCallback(boost::bind(&ObjEstAction::preemptCB, this));
 
       // Subscribe the point cloud from SR300
-      cloud_sub = nh_.subscribe("/camera/depth_registered/points", 10, &ObjEstAction::cloudCB,this);
+      cloud_sub = nh_.subscribe("/camera/depth_registered/points", 1, &ObjEstAction::cloudCB,this);
+      label_sub = nh_.subscribe("/label_img", 1, &ObjEstAction::L_ImgCB,this);
       segment_client = nh_.serviceClient<deeplab_resnet_pkg::Segmentation>("Semantic_Segmentation");
 
       // Strart action
@@ -56,6 +70,10 @@ public:
 
   // Callback Function for Subscribe Point Cloud
   void cloudCB(const sensor_msgs::PointCloud2ConstPtr& input);
+
+  // Callback Function to Extract Index which contain desired label
+  void L_ImgCB(const sensor_msgs::Image::ConstPtr& msg);
+
   // Callback Function for Waiting the Call of Action
   void goalCB();
 
@@ -83,6 +101,7 @@ private:
   //------ROS--------//
   ros::NodeHandle nh_;
   ros::Subscriber cloud_sub;
+  ros::Subscriber label_sub;
   ros::ServiceClient segment_client;
 
   // For action!
@@ -90,13 +109,19 @@ private:
   std::string action_name_;
   object_pose_estimation::ObjectPoseFeedback feedback_;
   object_pose_estimation::ObjectPoseResult result_;
+  // To receive object name from action
+  std::string obj_name;
 
   // For service
   deeplab_resnet_pkg::Segmentation seg_srv;
 
-  // To receive object name from action
-  std::string obj_name;
-  // To save foto or pcd
+  // For topic
+  sensor_msgs::Image L_Img;
+
+  // The path to save foto or pcd
   std::string path;
+
+  // Index of desired label in the image
+  int* index_list;
 };
 }

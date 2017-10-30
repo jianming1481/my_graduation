@@ -4,6 +4,7 @@
 
 // Messages of ROS
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/Image.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3.h>
 #include <std_msgs/String.h>
