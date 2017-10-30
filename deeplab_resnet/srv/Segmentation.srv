@@ -2,4 +2,4 @@ bool data
 ---
 bool success
 string message
-
+sensor_msgs/Image img
