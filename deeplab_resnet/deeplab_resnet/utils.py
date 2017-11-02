@@ -14,7 +14,7 @@ label_colours = [(0,0,0)
                 # ,(0,64,0),(128,64,0),(0,192,0),(128,192,0),(0,64,128)]
                 # 16=potted plant, 17=sheep, 18=sofa, 19=train, 20=tv/monitor
 
-def decode_labels(mask, num_images=1, num_classes=21):
+def decode_labels(mask, num_images=1, num_classes=6):
     """Decode batch of segmentation masks.
     
     Args:

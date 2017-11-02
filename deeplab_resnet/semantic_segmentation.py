@@ -11,7 +11,8 @@ import sys
 import time
 
 #from PIL import Image
-import PIL
+# import PIL
+from PIL import Image
 
 import tensorflow as tf
 import numpy as np
@@ -109,6 +110,15 @@ def build_resnet():
     loader = tf.train.Saver(var_list=restore_var)
     load(loader, sess, args.model_weights)
 
+# Convert the format of mask to image 
+def convert_2_image(mask):
+    n, h, w, c = mask.shape
+    outputs = np.zeros((1, h, w, 1), dtype=np.uint8)
+    for i in range(1):
+      outputs[i] = np.array(mask)
+    return outputs
+
+
 def handle_semantic_segmentation(req):
     print('Call service!')
     global img
@@ -134,7 +144,9 @@ def handle_semantic_segmentation(req):
         # im.save(SAVE_DIR + 'mask.png')
         
         # print('The output file has been saved to {}'.format(SAVE_DIR + 'mask.png'))
-        return SegmentationResponse(True,'Reveived image!')
+        #print(preds.shape)
+        l_img = convert_2_image(preds)
+        return SegmentationResponse(True,'Reveived image!',bridge.cv2_to_imgmsg(l_img))
     else:
         print('Semnatic Segmentation: inside handler none img')
         return SegmentationResponse(False,'No image!')

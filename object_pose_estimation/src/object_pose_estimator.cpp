@@ -57,6 +57,7 @@ bool ObjEstAction::segment()
 {
   seg_srv.request.data = true;
   segment_client.call(seg_srv);
+  seg_srv.response.img;
   state = NADA;
 }
 
