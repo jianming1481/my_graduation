@@ -31,7 +31,6 @@ void ObjEstAction::goalCB()
     default:
       goal_label = Back_Ground;
   }
-  ROS_INFO("Current Label: %d",goal_label);  
   state = FOTO;
 }
 
@@ -47,41 +46,57 @@ void ObjEstAction::cloudCB(const sensor_msgs::PointCloud2ConstPtr& input)
 
 #ifdef SaveCloud
     //write pcd
-    write_pcd_2_rospack(scene_cloud,"scene_cloud.pcd");
+    write_pcd_2_rospack(scene_cloud,"scene_cloud.pcd",true);
 #endif
     state = SEGMETATION;
   }
+}
+
+void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
+{
+  int width = label_image.width;
+  int height = label_image.height;
+  int point_cloud_size = 0;
+  ROS_INFO("Current Label: %d",goal_label);  
+  
+  for(int i=0;i<height;i++)
+  {
+    for(int j=0;j<width;j++)
+    {
+      if(label_image.data[i*width+j]==goal_label)
+      {
+        index_list.push_back(i*label_image.width+j);
+        label_image.data[i*width+j] = 255;
+        point_cloud_size++;
+      }
+    }
+  }
+  std::reverse(index_list.begin(),index_list.end());
+  if(point_cloud_size==0)
+  {
+    return;
+  }
+  m_cloud->width = point_cloud_size;
+  m_cloud->height=1;
+  m_cloud->points.resize(m_cloud->width*m_cloud->height);
+  for(int i=0;i<point_cloud_size;i++)
+  {
+    m_cloud->points[i].x = scene_cloud->points[index_list[i]].x;
+    m_cloud->points[i].y = scene_cloud->points[index_list[i]].y;
+    m_cloud->points[i].z = scene_cloud->points[index_list[i]].z;
+    m_cloud->points[i].rgb = scene_cloud->points[index_list[i]].rgb;
+  }
+  label_image_pub.publish(label_image);
+  write_pcd_2_rospack(m_cloud,"m_cloud.pcd",false);
 }
 
 bool ObjEstAction::segment()
 {
   seg_srv.request.data = true;
   segment_client.call(seg_srv);
-  seg_srv.response.img;
+  L_Img = seg_srv.response.img;
+  extract_cloud(L_Img);
   state = NADA;
-}
-
-void ObjEstAction::L_ImgCB(const sensor_msgs::Image::ConstPtr& msg)
-{
-  // index for list
-  int m=0;
-  if ((scene_cloud->width * scene_cloud->height) == 0)
-  {
-    ROS_ERROR("Empty Cloud!");
-    return; //return if the cloud is not dense!
-  }
-  for(int i=0;i<msg->height;i++)
-  {
-    for(int j=0;j<msg->width;j++)
-    {
-      if(msg->data[i*msg->width+j] == goal_label)
-      {
-        index_list[m] = i*msg->width+j;
-        m++;
-      }
-    }
-  }
-  ROS_INFO("The Size of Indes List: %d",m);
 }
 
 void ObjEstAction::pub_feedback(std::string msg,int progress)
@@ -97,14 +112,17 @@ void ObjEstAction::pub_error(const char *err_msg)
 
 
 
-void ObjEstAction::write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name){
-  //Remove All PCD File in [package]/pcd_file/*.pcd      
-  std::string sys_str;
-  path = ros::package::getPath("object_pose_estimation");
-  path.append("/pcd_file/");
-  sys_str = "rm  " +  path + "*.pcd";
-  std::cout << "[CMD] -> " << sys_str << std::endl;  
-  system(sys_str.c_str());
+void ObjEstAction::write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex){
+  if(breakup_with_ex)
+  {
+    //Remove All PCD File in [package]/pcd_file/*.pcd      
+    std::string sys_str;
+    path = ros::package::getPath("object_pose_estimation");
+    path.append("/pcd_file/");
+    sys_str = "rm  " +  path + "*.pcd";
+    std::cout << "[CMD] -> " << sys_str << std::endl;  
+    system(sys_str.c_str());
+  }
 
   // Find the package to storage the pcd file
   path = ros::package::getPath("object_pose_estimation");

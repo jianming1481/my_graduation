@@ -52,7 +52,7 @@ public:
     as_(nh_, name, false),
     action_name_(name),
     scene_cloud(new PCT),
-    index_list(new int)
+    m_cloud(new PCT)
     {
       // Regist the action in ROS
       as_.registerGoalCallback(boost::bind(&ObjEstAction::goalCB, this));
@@ -60,19 +60,22 @@ public:
 
       // Subscribe the point cloud from SR300
       cloud_sub = nh_.subscribe("/camera/depth_registered/points", 1, &ObjEstAction::cloudCB,this);
-      label_sub = nh_.subscribe("/label_img", 1, &ObjEstAction::L_ImgCB,this);
       segment_client = nh_.serviceClient<deeplab_resnet_pkg::Segmentation>("Semantic_Segmentation");
+
+      // Test the label image is correct or not
+      label_image_pub = nh_.advertise<sensor_msgs::Image>("service_label_image", 1);
 
       // Strart action
       as_.start();
       ROS_INFO("Obj_estimate is ready!");
     }
 
+  ~ObjEstAction()
+  {
+  }
+
   // Callback Function for Subscribe Point Cloud
   void cloudCB(const sensor_msgs::PointCloud2ConstPtr& input);
-
-  // Callback Function to Extract Index which contain desired label
-  void L_ImgCB(const sensor_msgs::Image::ConstPtr& msg);
 
   // Callback Function for Waiting the Call of Action
   void goalCB();
@@ -86,20 +89,26 @@ public:
   // Send the Error Code of Vision System
   void pub_error(const char *err_msg);
 
-  // Call deeplab_resnet Service to Do Semantic Segmentation
+  // Call deeplab_resnet Service to Do Semantic Segmentation and Get Label Image
   bool segment();
 
+  // Extract the point cloud from scene_cloud based on label image
+  void extract_cloud(sensor_msgs::Image label_image);
+
   // Save Point Cloud Data
-  void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name);
+  void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex);
 protected:
 
 private:
   //------PCL--------//
   // The Point Cloud Data of Whole Scene
   PCT::Ptr scene_cloud ;
+  // The Point Cloud of Desired Object
+  PCT::Ptr m_cloud;
 
   //------ROS--------//
   ros::NodeHandle nh_;
+  ros::Publisher label_image_pub;
   ros::Subscriber cloud_sub;
   ros::Subscriber label_sub;
   ros::ServiceClient segment_client;
@@ -122,6 +131,6 @@ private:
   std::string path;
 
   // Index of desired label in the image
-  int* index_list;
+  std::vector<int> index_list;
 };
 }

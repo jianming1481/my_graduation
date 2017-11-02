@@ -146,7 +146,7 @@ def handle_semantic_segmentation(req):
         # print('The output file has been saved to {}'.format(SAVE_DIR + 'mask.png'))
         #print(preds.shape)
         l_img = convert_2_image(preds)
-        return SegmentationResponse(True,'Reveived image!',bridge.cv2_to_imgmsg(l_img))
+        return SegmentationResponse(True,'Reveived image!',bridge.cv2_to_imgmsg(l_img[0]))
     else:
         print('Semnatic Segmentation: inside handler none img')
         return SegmentationResponse(False,'No image!')
