@@ -22,8 +22,17 @@
 #include <pcl/surface/mls.h>
 #include <pcl/kdtree/kdtree_flann.h>
 
-typedef pcl::PointXYZRGBA PT;           // Point Type
-typedef pcl::PointCloud<PT> PCT;        // Point Cloud Type
+
+// Types
+typedef pcl::PointXYZRGBA PT;                   // Point Type with XYZ and color
+typedef pcl::PointCloud<PT> PCT;                // Point Cloud Type
+typedef pcl::PointXYZRGBNormal PointNT;               // Point Type with Normal
+typedef pcl::PointCloud<PointNT> PointCloudT;   // Point Cloud Type with Normal
+
+typedef pcl::FPFHSignature33 FeatureT;          // Feature type with FPFH Signature
+typedef pcl::FPFHEstimationOMP<PointNT,PointNT,FeatureT> FeatureEstimationT;
+typedef pcl::PointCloud<FeatureT> FeatureCloudT;// Feature Cloud Type with FPFH Signature
+typedef pcl::visualization::PointCloudColorHandlerCustom<PointNT> ColorHandlerT;
 
 // Define to Save Point Cloud Data
 #define SaveCloud

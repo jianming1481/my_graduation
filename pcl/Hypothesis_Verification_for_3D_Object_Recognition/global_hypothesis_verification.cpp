@@ -4,8 +4,8 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/features/board.h>
-//#include <pcl/filters/uniform_sampling.h>
-#include <pcl/keypoints/uniform_sampling.h>
+#include <pcl/filters/uniform_sampling.h>
+//#include <pcl/keypoints/uniform_sampling.h>
 #include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/recognition/cg/geometric_consistency.h>
 #include <pcl/recognition/hv/hv_go.h>
@@ -251,18 +251,18 @@ main (int argc,
   pcl::UniformSampling<PointType> uniform_sampling;
   uniform_sampling.setInputCloud (model);
   uniform_sampling.setRadiusSearch (model_ss_);
-  //uniform_sampling.filter (*model_keypoints);
-  pcl::PointCloud<int> keypointIndices1; 
-  uniform_sampling.compute(keypointIndices1); 
-  pcl::copyPointCloud(*model, keypointIndices1.points, *model_keypoints); 
+  uniform_sampling.filter (*model_keypoints);
+  //pcl::PointCloud<int> keypointIndices1; 
+  //uniform_sampling.compute(keypointIndices1); 
+  //pcl::copyPointCloud(*model, keypointIndices1.points, *model_keypoints); 
   std::cout << "Model total points: " << model->size () << "; Selected Keypoints: " << model_keypoints->size () << std::endl;
 
   uniform_sampling.setInputCloud (scene);
   uniform_sampling.setRadiusSearch (scene_ss_);
-  //uniform_sampling.filter (*scene_keypoints);
-  pcl::PointCloud<int> keypointIndices2; 
-  uniform_sampling.compute(keypointIndices2); 
-  pcl::copyPointCloud(*scene, keypointIndices2.points, *scene_keypoints); 
+  uniform_sampling.filter (*scene_keypoints);
+  //pcl::PointCloud<int> keypointIndices2; 
+  //uniform_sampling.compute(keypointIndices2); 
+  //pcl::copyPointCloud(*scene, keypointIndices2.points, *scene_keypoints); 
   std::cout << "Scene total points: " << scene->size () << "; Selected Keypoints: " << scene_keypoints->size () << std::endl;
 
   /**

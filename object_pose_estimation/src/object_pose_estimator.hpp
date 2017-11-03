@@ -52,7 +52,12 @@ public:
     as_(nh_, name, false),
     action_name_(name),
     scene_cloud(new PCT),
-    m_cloud(new PCT)
+    m_cloud(new PCT),
+    object (new PointCloudT),
+    object_aligned (new PointCloudT),
+    scene (new PointCloudT),
+    object_features (new FeatureCloudT),
+    scene_features (new FeatureCloudT)
     {
       // Regist the action in ROS
       as_.registerGoalCallback(boost::bind(&ObjEstAction::goalCB, this));
@@ -95,6 +100,9 @@ public:
   // Extract the point cloud from scene_cloud based on label image
   void extract_cloud(sensor_msgs::Image label_image);
 
+  // Estimate the pose of object
+  void estimate_object_pose(PCT::Ptr object_cloud);
+
   // Save Point Cloud Data
   void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex);
 protected:
@@ -103,8 +111,16 @@ private:
   //------PCL--------//
   // The Point Cloud Data of Whole Scene
   PCT::Ptr scene_cloud ;
-  // The Point Cloud of Desired Object
+  // The Point Cloud to Storage Desired Object
   PCT::Ptr m_cloud;
+  // Point Cloud with Normal
+  PointCloudT::Ptr object;
+  PointCloudT::Ptr object_aligned;
+  PointCloudT::Ptr scene;
+
+  // Point Cloud with FPFH Feature
+  FeatureCloudT::Ptr object_features;
+  FeatureCloudT::Ptr scene_features;
 
   //------ROS--------//
   ros::NodeHandle nh_;

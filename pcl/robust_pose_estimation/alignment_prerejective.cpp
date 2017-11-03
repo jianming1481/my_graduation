@@ -16,7 +16,7 @@
 
 
 // Types
-typedef pcl::PointNormal PointNT;
+typedef pcl::PointXYZRGBNormal PointNT;
 typedef pcl::PointCloud<PointNT> PointCloudT;
 typedef pcl::FPFHSignature33 FeatureT;
 typedef pcl::FPFHEstimationOMP<PointNT,PointNT,FeatureT> FeatureEstimationT;
