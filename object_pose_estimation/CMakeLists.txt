@@ -130,8 +130,16 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+
 add_executable (object_pose_estimator src/object_pose_estimator.cpp)
+add_executable (remove_nan src/remove_nan.cpp)
+
 target_link_libraries (object_pose_estimator ${PCL_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries (remove_nan ${PCL_LIBRARIES} ${catkin_LIBRARIES})
+
 add_dependencies(object_pose_estimator obj_pose_generate_messages_cpp)
 add_dependencies(object_pose_estimator deeplab_resnet_pkg_generate_messages_cpp)
 

@@ -148,5 +148,8 @@ private:
 
   // Index of desired label in the image
   std::vector<int> index_list;
+    
+  std::vector<int> indices_obj;
+  std::vector<int> indices_sce; 
 };
 }
