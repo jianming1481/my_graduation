@@ -96,28 +96,44 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
 
 void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
 {
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-gtx1080/graduation_ws/src/my_graduation/pcl/robust_pose_estimation/build/hand_weight_00001.pcd", *scene);
-  object->points.resize(object_cloud->size());
-  for(int i=0;i<object_cloud->size();i++)
-  {
-    object->points[i].x = object_cloud->points[i].x;
-    object->points[i].y = object_cloud->points[i].y;
-    object->points[i].z = object_cloud->points[i].z;
-    object->points[i].rgb = object_cloud->points[i].rgb;
-  }
-  scene->points.resize(scene_cloud->size());
-  for(int i=0;i<scene_cloud->size();i++)
-  {
-    scene->points[i].x = scene_cloud->points[i].x;
-    scene->points[i].y = scene_cloud->points[i].y;
-    scene->points[i].z = scene_cloud->points[i].z;
-    scene->points[i].rgb = scene_cloud->points[i].rgb;
-  }
+  pcl::io::loadPCDFile<PointNT> ("/home/iclab-gtx1080/graduation_ws/src/my_graduation/object_pose_estimation/pcd_file/scene_cloud.pcd", *scene);
+  pcl::io::loadPCDFile<PointNT> ("/home/iclab-gtx1080/graduation_ws/src/my_graduation/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
+  // pcl::copyPointCloud(*m_cloud, *object);
+  // for(int i=0;i<object_cloud->size();i++)
+  // {
+  //   PointNT point;
+    
+  //   point.x = object_cloud->points[i].x;
+  //   point.y = object_cloud->points[i].y;
+  //   point.z = object_cloud->points[i].z;
+  //   point.rgb = object_cloud->points[i].rgb;
+  //   object->points.push_back(point);
+  // }
+  // object->width = object->points.size();
+  // object->height = 1;
+
+  // scene->points.resize(scene_cloud->size());
+  // for(int i=0;i<scene_cloud->size();i++)
+  // {
+  //   scene->points[i].x = scene_cloud->points[i].x;
+  //   scene->points[i].y = scene_cloud->points[i].y;
+  //   scene->points[i].z = scene_cloud->points[i].z;
+  //   scene->points[i].rgb = scene_cloud->points[i].rgb;
+  // }
   std::cerr << "Scene before filtering: " << scene->width * scene->height << std::endl;
+ 
   
-  std::vector<int> indices;
-  pcl::removeNaNFromPointCloud(*scene,*scene, indices);
-  pcl::removeNaNFromPointCloud(*object,*object, indices); 
+  pcl::removeNaNFromPointCloud(*object,*object, indices_obj);   
+  pcl::removeNaNFromPointCloud(*scene,*scene, indices_sce);
+
+  // Find the package to storage the pcd file
+  path = ros::package::getPath("object_pose_estimation");
+  path.append("/pcd_file/");
+  path.append("m_cloud_removeNAN.pcd");
+
+  std::cout << "Save PCD -> " << path << std::endl;
+  pcl::PCDWriter writer;
+  writer.write<PointNT> (path, *object, false);  
 
   // Downsample
   pcl::console::print_highlight ("Downsampling...\n");
