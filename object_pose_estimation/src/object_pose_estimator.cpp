@@ -78,14 +78,24 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
   }
   m_cloud->width = point_cloud_size;
   m_cloud->height=1;
-  m_cloud->points.resize(m_cloud->width*m_cloud->height);
+  m_cloud->is_dense = false;
+  m_cloud->points.resize(point_cloud_size);  
+  
   for(int i=0;i<point_cloud_size;i++)
   {
-    m_cloud->points[i].x = scene_cloud->points[index_list[i]].x;
-    m_cloud->points[i].y = scene_cloud->points[index_list[i]].y;
-    m_cloud->points[i].z = scene_cloud->points[index_list[i]].z;
-    m_cloud->points[i].rgb = scene_cloud->points[index_list[i]].rgb;
+    PT point;
+    point.x = scene_cloud->points[index_list[i]].x;
+    point.y = scene_cloud->points[index_list[i]].y;
+    point.z = scene_cloud->points[index_list[i]].z;
+    point.rgb = scene_cloud->points[index_list[i]].rgb;
+
+    m_cloud->push_back(point);
   }
+
+  std::vector<int> indices;
+  pcl::removeNaNFromPointCloud(*m_cloud,*m_cloud, indices);  
+
+  // Publish label image to show what we find
   label_image_pub.publish(label_image);
 
 #ifdef SaveCloud
@@ -96,34 +106,19 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
 
 void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
 {
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-gtx1080/graduation_ws/src/my_graduation/object_pose_estimation/pcd_file/scene_cloud.pcd", *scene);
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-gtx1080/graduation_ws/src/my_graduation/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
-  // pcl::copyPointCloud(*m_cloud, *object);
-  // for(int i=0;i<object_cloud->size();i++)
-  // {
-  //   PointNT point;
-    
-  //   point.x = object_cloud->points[i].x;
-  //   point.y = object_cloud->points[i].y;
-  //   point.z = object_cloud->points[i].z;
-  //   point.rgb = object_cloud->points[i].rgb;
-  //   object->points.push_back(point);
-  // }
-  // object->width = object->points.size();
-  // object->height = 1;
+  // Load the PCD model to compare how much it rotate with model
+  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/hand_weight_model.pcd", *scene);
+  // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
-  // scene->points.resize(scene_cloud->size());
-  // for(int i=0;i<scene_cloud->size();i++)
-  // {
-  //   scene->points[i].x = scene_cloud->points[i].x;
-  //   scene->points[i].y = scene_cloud->points[i].y;
-  //   scene->points[i].z = scene_cloud->points[i].z;
-  //   scene->points[i].rgb = scene_cloud->points[i].rgb;
-  // }
-  std::cerr << "Scene before filtering: " << scene->width * scene->height << std::endl;
+  // Change Point cloud type from XYZRGBZ to XYZRGBANormal
+  pcl::copyPointCloud(*m_cloud, *object);
+
+  std::cerr << "object before filtering: " << object->width * object->height << std::endl;
+  
+      
  
   
-  pcl::removeNaNFromPointCloud(*object,*object, indices_obj);   
+  std::vector<int> indices_sce; 
   pcl::removeNaNFromPointCloud(*scene,*scene, indices_sce);
 
   // Find the package to storage the pcd file
@@ -145,7 +140,7 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
   grid.setInputCloud (scene);
   grid.filter (*scene);
   
-  std::cerr << "Scene after filtering: " << scene->width * scene->height << std::endl;
+  std::cerr << "object after filtering: " << object->width * object->height << std::endl;
 
 
   // Estimate normals for object

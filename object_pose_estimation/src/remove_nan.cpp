@@ -36,5 +36,5 @@ int main (int argc, char *argv[])
     pcl::PCDWriter pcd_saver;
     std::stringstream ss;
     ss << model_filename_.c_str() << "_remove_NAN" << ".pcd";
-    pcd_saver.write<PointType> (ss.str (), *model, false);
+    pcd_saver.write<PointTypeN> (ss.str (), *scene, false);
 }
