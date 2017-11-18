@@ -24,11 +24,15 @@ def main():
     # Load the Path of data into a list
     filename_ori_list, filename_label_list = load_data()
 
-    # Augment the data and Generate the text document for loading data
+    # Generate the List for Neural Netwrok to Load Data 
     global f
-    f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
-    g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
+    # f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
+    f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
+    # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
+    g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
     g.close()
+
+    # Read Image from List to Augment Data
     for i in range(1,len(filename_ori_list)+1):
         m_str = filename_ori_list.pop()
         ori_img = cv2.imread(m_str)
@@ -44,9 +48,11 @@ def load_data():
     filename_label_list = []
 
     # Search all the jpg file in directories
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/*.jpg')):
         filename_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/*.jpg')):
         filename_label_list.append(label_filename)
 
     print "The number of image need to process: ", len(filename_ori_list)
@@ -87,7 +93,7 @@ def my_grab_cut(img, rect):
     cv2.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
     mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
     output = np.zeros(img.shape, np.uint8)  # output image to be shown
-    output = cv2.bitwise_and(img, img, mask=mask2)
+    output = cv2.bitwise_and(img, img, mask=    mask2)
     # cv2.imshow('test',output)
     # while(1):
     #     k = cv2.waitKey(60)
@@ -125,10 +131,12 @@ def aug_data(ori_img, label_img):
     # Declare Global Variable
     global foto_index
     global f
-    g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
+    # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
+    g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
 
-    # Save the original image to data
-
+    """
+        Save the original RGB Image and Label Image as Training Data
+    """
     file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,ori_img)
     f.write(file_name+" ")
@@ -138,11 +146,58 @@ def aug_data(ori_img, label_img):
     f.write(file_name+"\n")
     foto_index += 1
 
-    # Doing grab cut for the data
+    """
+        Use the Original Data to Augment Data
+        Using IR_Img(Depth) to Find the ROI for Grab Cut Algorithm
+    """
     min_x, min_y, max_x, max_y = find_ROI(label_img)
     rect = (min_x,min_y,abs(max_x-min_x),abs(max_y-min_y))
     ori_item = my_grab_cut(ori_img,rect)
     label_item = my_grab_cut(label_img,rect)
+
+    """
+        After Grab Cut, There Are Some Shadow Remain
+        It will Affect me to generate the ground truth data.
+        So I use K-means algorithm and color histogram to split it out from Image
+        Using Methodology method to refine the label Image in the end
+    """
+    # Init params for K-means
+    K = 8
+    Z = ori_item.reshape((-1,3))
+    # convert to np.float32
+    Z = np.float32(Z)
+    # define criteria, number of clusters(K) and apply kmeans()
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    ret,label,center=cv2.kmeans(Z,K,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
+
+    # To find the background's label 
+    # In my case black color mean background
+    # B,G,R
+    center = np.uint8(center)
+    for i in range(center.shape[0]):
+        if center[i][0] < 60:
+            if center[i][1] < 60:
+                if center[i][2] < 60:
+                    center[i] = [0, 0, 0]
+    # Now convert back into uint8, and make original RGB image
+    res = center[label.flatten()]
+    res2 = res.reshape((ori_item.shape))
+
+    # Using Methodology Method to Refine the Label Img
+    kernel = np.ones((5,5),np.uint8)
+    res2 = cv2.dilate(res2,kernel,iterations = 4)
+    res2 = cv2.erode(res2,kernel,iterations = 4)
+    res2 = cv2.cvtColor(res2,cv2.COLOR_BGR2GRAY)
+    """
+        Now we have the label Img
+        Using Label Image as a Mask to grab the item from original RGB-IMG (After Grab Cut)
+        And block black thing
+    """
+    ori_item = cv2.bitwise_and(ori_img,ori_img,mask = res2)
+
+    # Transfer ori_item to label_item
+    label_item = cv2.cvtColor(ori_item,cv2.COLOR_BGR2GRAY)
+    ret, label_item = cv2.threshold(label_item, 10, 1, cv2.THRESH_BINARY)
 
     for i in range(2,21):
         # Init some parameter to change scale or rotate or translate
@@ -168,19 +223,25 @@ def aug_data(ori_img, label_img):
 
         # Save Image
         if i>15:
-            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             g.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+            # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            tmp_label_img_8UC1 = tmp_label_img
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             g.write(file_name+"\n")
         else:
-            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             f.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+            # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
+            tmp_label_img_8UC1 = tmp_label_img
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             f.write(file_name+"\n")
         foto_index += 1
