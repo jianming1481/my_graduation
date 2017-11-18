@@ -19,6 +19,7 @@ from matplotlib import pyplot as plt
 # Declare Global Variable
 f = None
 global foto_index
+global _label
 
 def main():
     # Load the Path of data into a list
@@ -26,6 +27,8 @@ def main():
 
     # Generate the List for Neural Netwrok to Load Data 
     global f
+    global _label
+    _label = 1
     # f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
     f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
     # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
@@ -130,6 +133,7 @@ def add_obj_with_bg(tmp_ori_img):
 def aug_data(ori_img, label_img):
     # Declare Global Variable
     global foto_index
+    global _label
     global f
     # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
     g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
@@ -137,14 +141,10 @@ def aug_data(ori_img, label_img):
     """
         Save the original RGB Image and Label Image as Training Data
     """
-    file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+    # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,ori_img)
     f.write(file_name+" ")
-    file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-    label_img_8UC1 = cv2.cvtColor(label_img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(file_name,label_img_8UC1)
-    f.write(file_name+"\n")
-    foto_index += 1
 
     """
         Use the Original Data to Augment Data
@@ -197,7 +197,15 @@ def aug_data(ori_img, label_img):
 
     # Transfer ori_item to label_item
     label_item = cv2.cvtColor(ori_item,cv2.COLOR_BGR2GRAY)
-    ret, label_item = cv2.threshold(label_item, 10, 1, cv2.THRESH_BINARY)
+    ret, label_item = cv2.threshold(label_item, 10, _label, cv2.THRESH_BINARY)
+
+    # Save Label Image from Orignal Image without any rotate or translate 
+    # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+    label_img_8UC1 = label_item
+    cv2.imwrite(file_name,label_img_8UC1)
+    f.write(file_name+"\n")
+    foto_index += 1
 
     for i in range(2,21):
         # Init some parameter to change scale or rotate or translate
@@ -246,6 +254,7 @@ def aug_data(ori_img, label_img):
             f.write(file_name+"\n")
         foto_index += 1
     g.close()
+    _label+= 250
 
 if __name__ == "__main__":
     global foto_index
