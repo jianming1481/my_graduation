@@ -13,6 +13,7 @@ import random
 import glob
 import numpy as np
 import sys
+import time
 from matplotlib import pyplot as plt
 
 
@@ -31,6 +32,8 @@ def main():
     global g
     global _label
     _label = 1
+    # how many numbers of images do you have in one class
+    img_numbers = 40
     f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
     # f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
     g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
@@ -43,9 +46,12 @@ def main():
         m_str = filename_label_list.pop()
         label_img = cv2.imread(m_str)
         aug_data(ori_img, label_img)
-        if i %40 == 0:
+        if i %img_numbers == 0:
             _label += 1
-    print("==================Finish data augmentation==================\n")
+            sys.stdout.write("Proceesing " + str(_label)+'\r')
+            time.sleep(0.1)
+            sys.stdout.flush()
+    print("\n==================Finish data augmentation==================\n")
     f.close()
     g.close()
 
@@ -134,14 +140,26 @@ def add_obj_with_bg(tmp_ori_img):
     #     if k == 27:  # Esc key to stop
     #         break
 
+'''
+    CAUTION!!! DO NOT SAVE LABEL IMAGE IN JPEG FORMAT!!!
+    Meet some strange problem that output label image not only just has label....
+    So we create this function to make sure all label is correct
+'''
+def convert2binary(label_img,label):
+    for i in range(0,label_img.shape[0]):
+        for j in range(0,label_img.shape[1]):
+            if label_img[i][j]>0:
+                label_img[i][j] = label
+            else:
+                label_img[i][j] = 0
+    return label_img
+
 def aug_data(ori_img, label_img):
     # Declare Global Variable
     global foto_index
     global _label
     global f
     global g
-    # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
-    # g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
 
     """
         Save the original RGB Image and Label Image as Training Data
@@ -202,12 +220,11 @@ def aug_data(ori_img, label_img):
 
     # Transfer ori_item to label_item
     label_item = cv2.cvtColor(ori_item,cv2.COLOR_BGR2GRAY)
-    ret, label_item = cv2.threshold(label_item, 10, _label, cv2.THRESH_BINARY)
+    ret, label_img_8UC1 = cv2.threshold(label_item, 0, _label, cv2.THRESH_BINARY)
 
     # Save Label Image from Orignal Image without any rotate or translate 
-    file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-    # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
-    label_img_8UC1 = label_item
+    file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+    # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
     cv2.imwrite(file_name,label_img_8UC1)
     f.write(file_name+"\n")
     foto_index += 1
@@ -230,7 +247,7 @@ def aug_data(ori_img, label_img):
         
         # Rotate Image
         tmp_ori_img = cv2.warpAffine(ori_item,M,(max_cols,max_rows))
-        tmp_label_img = cv2.warpAffine(label_item,M,(max_cols,max_rows))
+        tmp_label_img = cv2.warpAffine(label_img_8UC1,M,(max_cols,max_rows))
 
         tmp_ori_img = add_obj_with_bg(tmp_ori_img)
 
@@ -240,10 +257,9 @@ def aug_data(ori_img, label_img):
             # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             g.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
-            # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
-            tmp_label_img_8UC1 = tmp_label_img
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            ret, tmp_label_img_8UC1 = cv2.threshold(tmp_label_img, 0, _label, cv2.THRESH_BINARY)
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             g.write(file_name+"\n")
         else:
@@ -251,15 +267,13 @@ def aug_data(ori_img, label_img):
             # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             f.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
-            # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
-            tmp_label_img_8UC1 = tmp_label_img
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            ret, tmp_label_img_8UC1 = cv2.threshold(tmp_label_img, 0, _label, cv2.THRESH_BINARY)
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             f.write(file_name+"\n")
         foto_index += 1
     # g.close()
-    _label+= 1
 
 if __name__ == "__main__":
     global foto_index
