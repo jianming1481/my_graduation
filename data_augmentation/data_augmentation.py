@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 
 # Declare Global Variable
 f = None
+g = None
 global foto_index
 global _label
 
@@ -27,13 +28,13 @@ def main():
 
     # Generate the List for Neural Netwrok to Load Data 
     global f
+    global g
     global _label
     _label = 1
-    # f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
-    f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
-    # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
-    g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
-    g.close()
+    f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
+    # f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
+    g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
+    # g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
 
     # Read Image from List to Augment Data
     for i in range(1,len(filename_ori_list)+1):
@@ -42,8 +43,11 @@ def main():
         m_str = filename_label_list.pop()
         label_img = cv2.imread(m_str)
         aug_data(ori_img, label_img)
+        if i %40 == 0:
+            _label += 1
     print("==================Finish data augmentation==================\n")
     f.close()
+    g.close()
 
 def load_data():
     # Declare Empty list to store the path of data
@@ -51,11 +55,11 @@ def load_data():
     filename_label_list = []
 
     # Search all the jpg file in directories
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/*.jpg')):
         filename_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/*.jpg')):
         filename_label_list.append(label_filename)
 
     print "The number of image need to process: ", len(filename_ori_list)
@@ -135,14 +139,15 @@ def aug_data(ori_img, label_img):
     global foto_index
     global _label
     global f
+    global g
     # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt', 'a')
-    g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
+    # g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
 
     """
         Save the original RGB Image and Label Image as Training Data
     """
-    # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+    file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+    # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
     cv2.imwrite(file_name,ori_img)
     f.write(file_name+" ")
 
@@ -200,8 +205,8 @@ def aug_data(ori_img, label_img):
     ret, label_item = cv2.threshold(label_item, 10, _label, cv2.THRESH_BINARY)
 
     # Save Label Image from Orignal Image without any rotate or translate 
-    # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+    file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+    # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
     label_img_8UC1 = label_item
     cv2.imwrite(file_name,label_img_8UC1)
     f.write(file_name+"\n")
@@ -231,30 +236,30 @@ def aug_data(ori_img, label_img):
 
         # Save Image
         if i>15:
-            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             g.write(file_name+" ")
-            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
             # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
             tmp_label_img_8UC1 = tmp_label_img
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             g.write(file_name+"\n")
         else:
-            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,tmp_ori_img)
             f.write(file_name+" ")
-            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.jpg'
             # tmp_label_img_8UC1 = cv2.cvtColor(tmp_label_img, cv2.COLOR_BGR2GRAY)
             tmp_label_img_8UC1 = tmp_label_img
             cv2.imwrite(file_name,tmp_label_img_8UC1)
             f.write(file_name+"\n")
         foto_index += 1
-    g.close()
-    _label+= 250
+    # g.close()
+    _label+= 1
 
 if __name__ == "__main__":
     global foto_index
