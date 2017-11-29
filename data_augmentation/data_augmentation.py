@@ -48,51 +48,51 @@ def load_data():
 
     # Search all the jpg file in directories
     ''' 1st Class: Hand Weight '''
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/hand_weight/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/hand_weight/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/hand_weight/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/hand_weight/*.jpg')):
         hand_weight_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/hand_weight/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/hand_weight/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/hand_weight/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/hand_weight/*.jpg')):
         hand_weight_gt_list.append(label_filename)
     hand_weight_ori_list.reverse()
     hand_weight_gt_list.reverse()
 
     ''' 2nd Class: Crayons '''
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/crayons/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/crayons/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/crayons/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/crayons/*.jpg')):
         crayons_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/crayons/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/crayons/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/crayons/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/crayons/*.jpg')):
         crayons_gt_list.append(label_filename)
     crayons_ori_list.reverse()
     crayons_gt_list.reverse()
     
     ''' 3rd Class: Minions '''
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/minions/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/minions/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/minions/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/minions/*.jpg')):
         minions_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/minions/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/minions/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/minions/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/minions/*.jpg')):
         minions_gt_list.append(label_filename)
     minions_ori_list.reverse()
     minions_gt_list.reverse()
 
     ''' 4th Class: Koopa '''
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/koopa/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/koopa/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/koopa/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/koopa/*.jpg')):
         koopa_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/koopa/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/koopa/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/koopa/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/koopa/*.jpg')):
         koopa_gt_list.append(label_filename)
     koopa_ori_list.reverse()
     koopa_gt_list.reverse()
 
     ''' 5th Class: Robots Everywhere '''
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/robots_everywhere/*.jpg')):
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/robots_everywhere/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/robots_everywhere/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/robots_everywhere/*.jpg')):
         robots_everywhere_ori_list.append(ori_filename)
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/robots_everywhere/*.jpg')):
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/robots_everywhere/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/robots_everywhere/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/robots_everywhere/*.jpg')):
         robots_everywhere_gt_list.append(label_filename)
     robots_everywhere_ori_list.reverse()
     robots_everywhere_gt_list.reverse()
@@ -103,8 +103,8 @@ def load_data():
     background_list.reverse()
 
     total_list_num = len(hand_weight_ori_list)+len(crayons_ori_list)+len(minions_ori_list)+len(koopa_ori_list)+len(robots_everywhere_ori_list)
-    print "The number of image need to process: ", total_list_num
-    print total_list_num * 20, "images will be generated"
+    # print "The number of image need to process: ", total_list_num
+    # print total_list_num * 20, "images will be generated"
 
     return hand_weight_ori_list, crayons_ori_list, minions_ori_list,koopa_ori_list,robots_everywhere_ori_list,\
            hand_weight_gt_list, crayons_gt_list, minions_gt_list,koopa_gt_list,robots_everywhere_gt_list,\
@@ -289,9 +289,10 @@ def add_all_label_img(label,label_img,label_bg_img):
 
     return label_bg_img
 
+
 def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
     global foto_index
-    for i in range(1,3):
+    for i in range(1,41):
         # Try to change order in every loop
         random.shuffle(background_img_list)
         rgb_obj_list,label_list = shuffle_two_list(rgb_obj_list,label_list)
@@ -323,14 +324,39 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
             # Add all object into background img
             bg_img = add_obj_with_bg(obj_img,bg_img)
             label_bg_img = add_all_label_img(_label,label_img_8UC1,label_bg_img)
-        file_name = '/home/iclab-giga/Desktop/label_img_'+str(foto_index)+'.png'
-        cv2.imwrite(file_name,label_bg_img)
-        foto_index+=1
+        # Save list for training
+        f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','a')
+        # f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','a')
+        g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','a')
+        # g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','a')
+        # Save Image
+        if i>30:
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,bg_img)
+            g.write(file_name+" ")
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            cv2.imwrite(file_name,label_bg_img)
+            g.write(file_name+"\n")
+        else:
+            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            cv2.imwrite(file_name,bg_img)
+            f.write(file_name+" ")
+            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            cv2.imwrite(file_name,label_bg_img)
+            f.write(file_name+"\n")
+
         # cv2.imshow('res',bg_img)
         # while(1):
         #     k = cv2.waitKey(60)
         #     if k == 27:  # Esc key to stop
         #         break
+        foto_index+=1
+        f.close()
+        g.close()
 
 def main():
     # Load the Path of data into a list
@@ -340,18 +366,12 @@ def main():
     total_list_num = len(hand_weight_ori_list)+len(crayons_ori_list)+len(minions_ori_list)+len(koopa_ori_list)+len(robots_everywhere_ori_list)
 
     # Generate the List for Neural Netwrok to Load Data 
-    global f
-    global g
     global _label
     _label = 255
 
     # how many numbers of images do you have in one class
     img_numbers = 1
     index = 1
-    # f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','w')
-    f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','w')
-    # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','w')
-    g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','w')
 
     # The list to restorage the path of image
     rgb_image_list = []
@@ -402,6 +422,7 @@ def main():
             """
             rect = find_ROI(label_img)
             rgb_obj_list.append(my_grab_cut(ori_img,rect))
+
         while len(background_list)!=0:
             m_str = background_list.pop()
             background_img = cv2.imread(m_str)
@@ -411,146 +432,8 @@ def main():
         total_list_num = len(hand_weight_ori_list)+len(crayons_ori_list)+len(minions_ori_list)+len(koopa_ori_list)+len(robots_everywhere_ori_list)
 
     print("\n==================Finish data augmentation==================\n")
-    f.close()
-    g.close()
-
-
-
-'''
-    CAUTION!!! DO NOT SAVE LABEL IMAGE IN JPEG FORMAT!!!
-    Meet some strange problem that output label image not only just has label....
-    So we create this function to make sure all label is correct
-'''
-def convert2binary(label_img,label):
-    for i in range(0,label_img.shape[0]):
-        for j in range(0,label_img.shape[1]):
-            if label_img[i][j]>0:
-                label_img[i][j] = label
-            else:
-                label_img[i][j] = 0
-    return label_img
-
-def aug_data(ori_img, label_img):
-    # Declare Global Variable
-    global foto_index
-    global _label
-    global f
-    global g
-
-    """
-        Save the original RGB Image and Label Image as Training Data
-    """
-    # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
-    cv2.imwrite(file_name,ori_img)
-    f.write(file_name+" ")
-
-    """
-        Use the Original Data to Augment Data
-        Using IR_Img(Depth) to Find the ROI for Grab Cut Algorithm
-    """
-    rect = find_ROI(label_img)
-    ori_item = my_grab_cut(ori_img,rect)
-    label_item = my_grab_cut(label_img,rect)
-
-    """
-        After Grab Cut, There Are Some Shadow Remain
-        It will Affect me to generate the ground truth data.
-        So I use K-means algorithm and color histogram to split it out from Image
-        Using Methodology method to refine the label Image in the end
-    """
-    # Init params for K-means
-    K = 8
-    Z = ori_item.reshape((-1,3))
-    # convert to np.float32
-    Z = np.float32(Z)
-    # define criteria, number of clusters(K) and apply kmeans()
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    ret,label,center=cv2.kmeans(Z,K,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
-
-    # To find the background's label 
-    # In my case black color mean background
-    # B,G,R
-    center = np.uint8(center)
-    for i in range(center.shape[0]):
-        if center[i][0] < 60:
-            if center[i][1] < 60:
-                if center[i][2] < 60:
-                    center[i] = [0, 0, 0]
-    # Now convert back into uint8, and make original RGB image
-    res = center[label.flatten()]
-    res2 = res.reshape((ori_item.shape))
-
-    # Using Methodology Method to Refine the Label Img
-    kernel = np.ones((5,5),np.uint8)
-    res2 = cv2.dilate(res2,kernel,iterations = 4)
-    res2 = cv2.erode(res2,kernel,iterations = 4)
-    res2 = cv2.cvtColor(res2,cv2.COLOR_BGR2GRAY)
-    """
-        Now we have the label Img
-        Using Label Image as a Mask to grab the item from original RGB-IMG (After Grab Cut)
-        And block black thing
-    """
-    ori_item = cv2.bitwise_and(ori_img,ori_img,mask = res2)
-
-    # Transfer ori_item to label_item
-    label_item = cv2.cvtColor(ori_item,cv2.COLOR_BGR2GRAY)
-    ret, label_img_8UC1 = cv2.threshold(label_item, 0, _label, cv2.THRESH_BINARY)
-
-    # Save Label Image from Orignal Image without any rotate or translate 
-    # file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
-    file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
-    cv2.imwrite(file_name,label_img_8UC1)
-    f.write(file_name+"\n")
-    foto_index += 1
-
-    for i in range(2,21):
-        # Init some parameter to change scale or rotate or translate
-        max_rows, max_cols = ori_img.shape[:2]
-        random.seed(None)
-        scale = random.random()
-        rot = random.randint(-180,180)
-        rows = random.randint(max_rows/3,max_rows)
-        cols = random.randint(max_cols/3,max_cols)
-        
-        # Make some limit for parameter
-        while (scale < 0.3):
-            scale = random.random()
-            
-        # Build Rotate Matrix
-        M = cv2.getRotationMatrix2D((cols/2,rows/2),rot,scale)
-        
-        # Rotate Image
-        tmp_ori_img = cv2.warpAffine(ori_item,M,(max_cols,max_rows))
-        tmp_label_img = cv2.warpAffine(label_img_8UC1,M,(max_cols,max_rows))
-
-        tmp_ori_img = add_obj_with_bg(tmp_ori_img)
-
-        # Save Image
-        if i>15:
-            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
-            cv2.imwrite(file_name,tmp_ori_img)
-            g.write(file_name+" ")
-            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
-            ret, tmp_label_img_8UC1 = cv2.threshold(tmp_label_img, 0, _label, cv2.THRESH_BINARY)
-            cv2.imwrite(file_name,tmp_label_img_8UC1)
-            g.write(file_name+"\n")
-        else:
-            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
-            cv2.imwrite(file_name,tmp_ori_img)
-            f.write(file_name+" ")
-            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
-            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
-            ret, tmp_label_img_8UC1 = cv2.threshold(tmp_label_img, 0, _label, cv2.THRESH_BINARY)
-            cv2.imwrite(file_name,tmp_label_img_8UC1)
-            f.write(file_name+"\n")
-        foto_index += 1
-    # g.close()
 
 if __name__ == "__main__":
     global foto_index
-    foto_index = 1
+    foto_index = 4001
     main()
