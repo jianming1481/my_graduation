@@ -229,7 +229,7 @@ def shuffle_two_list(rgb_obj_list,label_list):
     label_list = list(label_list)
     return rgb_obj_list, label_list
 
-def rotate_translate_scale(ori_item, label_img_8UC1):
+def rotate_translate_scale(ori_item):
     max_rows, max_cols, max_channel = ori_item.shape
 
     random.seed(None)
@@ -247,9 +247,8 @@ def rotate_translate_scale(ori_item, label_img_8UC1):
     
     # Rotate Image
     tmp_obj_img = cv2.warpAffine(ori_item,M,(max_cols,max_rows))
-    tmp_label_img = cv2.warpAffine(label_img_8UC1,M,(max_cols,max_rows))
     
-    return tmp_obj_img, tmp_label_img
+    return tmp_obj_img
 
 def add_obj_with_bg(obj_img, bg_img):
     # I want to put logo on top-left corner, So I create a ROI
@@ -271,34 +270,67 @@ def add_obj_with_bg(obj_img, bg_img):
 
     return bg_img
 
+def add_all_label_img(label,label_img,label_bg_img):
+    # I want to put logo on top-left corner, So I create a ROI
+    rows, cols = label_img.shape
+    roi = label_bg_img[0:rows, 0:cols]
+
+    # Now create a mask of logo and create its inverse mask also
+    ret, mask = cv2.threshold(label_img, 0, 255, cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+    # Now black-out the area of logo in ROI
+    img1_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+    # Take only region of logo from logo image.
+    img2_fg = cv2.bitwise_and(label_img, label_img, mask=mask)
+
+    # Put logo in ROI and modify the main image
+    dst = cv2.add(img1_bg, img2_fg)
+    label_bg_img[0:rows, 0:cols] = dst
+
+    return label_bg_img
+
 def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
+    global foto_index
     for i in range(1,3):
+        # Try to change order in every loop
+        random.shuffle(background_img_list)
         rgb_obj_list,label_list = shuffle_two_list(rgb_obj_list,label_list)
+        # Copy list to another new list
         tmp_rgb_obj_list = rgb_obj_list[:]
         tmp_label_list = label_list[:]
-        random.shuffle(background_img_list)
+        # Copy list to another new list
+        # If don't use 'copy' library, the value inside old list will change when new list change
         tmp_bg_img_list = copy.deepcopy(background_img_list)
         bg_img = tmp_bg_img_list.pop()
 
+        # Create a blank image space to storage label image
+        label_bg_img = np.zeros(bg_img.shape[:2], np.uint8)
+        
         while len(tmp_rgb_obj_list)!=0:
             ori_item = tmp_rgb_obj_list.pop()
             _label = tmp_label_list.pop()
+            # print _label
+            # _label = 127
             
                 # Extract obj from shadow and make a label image
             obj_item = extract_from_shadow(ori_item)
-            label_item = cv2.cvtColor(obj_item,cv2.COLOR_BGR2GRAY)
+            # Rotate, shift, scaling item
+            obj_img = rotate_translate_scale(obj_item)
+            label_item = cv2.cvtColor(obj_img,cv2.COLOR_BGR2GRAY)
             ret, label_img_8UC1 = cv2.threshold(label_item, 0, _label, cv2.THRESH_BINARY)
             
-            # Rotate, shift, scaling item
-            obj_img, label_img = rotate_translate_scale(obj_item, label_img_8UC1)
             
             # Add all object into background img
             bg_img = add_obj_with_bg(obj_img,bg_img)
-        cv2.imshow('res',bg_img)
-        while(1):
-            k = cv2.waitKey(60)
-            if k == 27:  # Esc key to stop
-                break
+            label_bg_img = add_all_label_img(_label,label_img_8UC1,label_bg_img)
+        file_name = '/home/iclab-giga/Desktop/label_img_'+str(foto_index)+'.png'
+        cv2.imwrite(file_name,label_bg_img)
+        foto_index+=1
+        # cv2.imshow('res',bg_img)
+        # while(1):
+        #     k = cv2.waitKey(60)
+        #     if k == 27:  # Esc key to stop
+        #         break
 
 def main():
     # Load the Path of data into a list
