@@ -60,7 +60,7 @@ def main():
     
     # Prepare image.
     my_img = mpimg.imread(args.img_path)
-    input_data = tf.placeholder(tf.float32, shape=[ 1000, 1334, 3])
+    input_data = tf.placeholder(tf.float32, shape=list(my_img.shape))
     # Convert RGB to BGR.
     img_r, img_g, img_b = tf.split(axis=2, num_or_size_splits=3, value=input_data)
     img = tf.cast(tf.concat(axis=2, values=[img_b, img_g, img_r]), dtype=tf.float32)

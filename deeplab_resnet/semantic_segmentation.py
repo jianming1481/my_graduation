@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Run DeepLab-ResNet on a given image.
 """
@@ -34,7 +36,9 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
 NUM_CLASSES = 6
 SAVE_DIR = './output/'
 IMG_DIR = '/home/iclab-gtx1080/Desktop/test2.jpg'
+# MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-90000'
 MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-200000'
+
 show_img = 0
 img = None
 pred = None

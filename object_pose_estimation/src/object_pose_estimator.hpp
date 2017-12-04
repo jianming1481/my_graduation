@@ -59,6 +59,23 @@ public:
     object_features (new FeatureCloudT),
     scene_features (new FeatureCloudT)
     {
+      //General parameters
+      pcl::console::parse_argument (argc, argv, "--model_ss", model_ss_);
+      pcl::console::parse_argument (argc, argv, "--scene_ss", scene_ss_);
+      pcl::console::parse_argument (argc, argv, "--rf_rad", rf_rad_);
+      pcl::console::parse_argument (argc, argv, "--descr_rad", descr_rad_);
+      pcl::console::parse_argument (argc, argv, "--cg_size", cg_size_);
+      pcl::console::parse_argument (argc, argv, "--cg_thresh", cg_thresh_);
+      pcl::console::parse_argument (argc, argv, "--icp_max_iter", icp_max_iter_);
+      pcl::console::parse_argument (argc, argv, "--icp_corr_distance", icp_corr_distance_);
+      pcl::console::parse_argument (argc, argv, "--hv_clutter_reg", hv_clutter_reg_);
+      pcl::console::parse_argument (argc, argv, "--hv_inlier_th", hv_inlier_th_);
+      pcl::console::parse_argument (argc, argv, "--hv_occlusion_th", hv_occlusion_th_);
+      pcl::console::parse_argument (argc, argv, "--hv_rad_clutter", hv_rad_clutter_);
+      pcl::console::parse_argument (argc, argv, "--hv_regularizer", hv_regularizer_);
+      pcl::console::parse_argument (argc, argv, "--hv_rad_normals", hv_rad_normals_);
+      pcl::console::parse_argument (argc, argv, "--hv_detect_clutter", hv_detect_clutter_); 
+
       // Regist the action in ROS
       as_.registerGoalCallback(boost::bind(&ObjEstAction::goalCB, this));
       as_.registerPreemptCallback(boost::bind(&ObjEstAction::preemptCB, this));
@@ -102,7 +119,7 @@ public:
 
   // Estimate the pose of object
   void estimate_object_pose(PCT::Ptr object_cloud);
-
+  void estimate_object_pose_CG(PCT::Ptr object_cloud);
   // Save Point Cloud Data
   void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex);
 protected:
