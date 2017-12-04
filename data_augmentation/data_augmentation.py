@@ -227,6 +227,7 @@ def shuffle_two_list(rgb_obj_list,label_list):
     label_list, rgb_obj_list = zip(*tmp_list)
     rgb_obj_list = list(rgb_obj_list)
     label_list = list(label_list)
+    # print label_list
     return rgb_obj_list, label_list
 
 def rotate_translate_scale(ori_item):
@@ -295,10 +296,10 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
     for i in range(1,41):
         # Try to change order in every loop
         random.shuffle(background_img_list)
-        rgb_obj_list,label_list = shuffle_two_list(rgb_obj_list,label_list)
+        tmp_rgb_obj_list,tmp_label_list = shuffle_two_list(rgb_obj_list,label_list)
         # Copy list to another new list
-        tmp_rgb_obj_list = rgb_obj_list[:]
-        tmp_label_list = label_list[:]
+        tmp_rgb_obj_list = copy.deepcopy(rgb_obj_list)
+        tmp_label_list = copy.deepcopy(label_list)
         # Copy list to another new list
         # If don't use 'copy' library, the value inside old list will change when new list change
         tmp_bg_img_list = copy.deepcopy(background_img_list)
@@ -311,9 +312,13 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
             ori_item = tmp_rgb_obj_list.pop()
             _label = tmp_label_list.pop()
             # print _label
-            # _label = 127
+            # cv2.imshow('Current_process_item',ori_item)
+            # while(1):
+            #     k = cv2.waitKey(60)
+            #     if k == 27:  # Esc key to stop
+            #         break
             
-                # Extract obj from shadow and make a label image
+            # Extract obj from shadow and make a label image
             obj_item = extract_from_shadow(ori_item)
             # Rotate, shift, scaling item
             obj_img = rotate_translate_scale(obj_item)
@@ -404,7 +409,8 @@ def main():
             label_image_list.append(robots_everywhere_gt_list.pop())
             label_list.append(5)
         print select_list
-        print label_list
+        #print label_list
+        label_list.reverse()
         index = 0
         
         # The rgb object cutted from original image
