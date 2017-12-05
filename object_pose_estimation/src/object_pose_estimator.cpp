@@ -101,18 +101,18 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
 #ifdef SaveCloud
   write_pcd_2_rospack(m_cloud,"m_cloud.pcd",false);
 #endif
-  // estimate_object_pose(m_cloud);
-  estimate_object_pose_CG(m_cloud);
+  estimate_object_pose(m_cloud);
+  // estimate_object_pose_CG(m_cloud);
 }
 
 void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
 {
   // Load the PCD model to compare how much it rotate with model
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/hand_weight_model.pcd", *scene);
+  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
   // Change Point cloud type from XYZRGBZ to XYZRGBANormal
-  pcl::copyPointCloud(*m_cloud, *object);
+  pcl::copyPointCloud(*m_cloud, *scene);
 
   std::cerr << "object before filtering: " << object->width * object->height << std::endl;
   
@@ -193,6 +193,7 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
     printf ("\n");
     float roll,pitch,yaw;
     Eigen::Matrix4f transformation = align.getFinalTransformation ();
+    transfer_2_robot_frame(transformation);
     pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation (0,0), transformation (0,1), transformation (0,2));
     pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transformation (1,0), transformation (1,1), transformation (1,2));
     pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation (2,0), transformation (2,1), transformation (2,2));
@@ -224,6 +225,147 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
     pcl::console::print_error ("Alignment failed!\n");
     return;
   }
+}
+
+Eigen::Quaterniond ObjEstAction::euler2Quaternion( double roll,
+                                                   double pitch,
+                                                   double yaw )
+{
+    // roll = roll/180*3.14159;
+    // pitch = pitch/180*3.14159;
+    // yaw = yaw/180*3.14159;
+    
+    Eigen::AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());
+
+    Eigen::Quaterniond q = rollAngle * pitchAngle * yawAngle;
+    Eigen::Matrix3d matrix = q.matrix();
+    // printf ("Rotation matrix :\n");
+    // printf ("    | %6.3f %6.3f %6.3f | \n", matrix (0, 0), matrix (0, 1), matrix (0, 2));
+    // printf ("R = | %6.3f %6.3f %6.3f | \n", matrix (1, 0), matrix (1, 1), matrix (1, 2));
+    // printf ("    | %6.3f %6.3f %6.3f | \n", matrix (2, 0), matrix (2, 1), matrix (2, 2));
+    // std::cout << "Eigen = " << q.x() << std::endl << q.y() << std::endl << q.z() << std::endl << q.w() << std::endl;
+    return q;
+}
+
+void ObjEstAction::joint_state_CB(const sensor_msgs::JointState::ConstPtr& joint)
+{
+  Eigen::Quaterniond tmp_q;
+  tmp_q = euler2Quaternion(0, 0, 0);
+  Eigen::Matrix3d tmp = tmp_q.matrix();
+  Eigen::Matrix4f tmp_mat;
+  Eigen::Matrix4f tmp_rot_mat;
+  Eigen::Matrix4f tmp_eef_mat;
+  Eigen::Affine3f transformatoin;
+  float roll,pitch,yaw;
+
+  // Define robot_arm_base
+  tmp_mat << tmp(0,0), tmp(0,1), tmp(0,2), 0,
+             tmp(1,0), tmp(1,1), tmp(1,2), 0,
+             tmp(2,0), tmp(2,1), tmp(2,2), 0,
+                    0,        0,        0, 1;
+  // robot_arm_base to joint1
+  tmp_q = euler2Quaternion(0, 0, joint->position[0]);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),     0,
+                 tmp(1,0), tmp(1,1), tmp(1,2),     0,
+                 tmp(2,0), tmp(2,1), tmp(2,2), 0.125,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_mat*tmp_rot_mat;
+
+  // Joint1 to Joint2
+  tmp_q = euler2Quaternion(0, joint->position[1], 0);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),     0,
+                 tmp(1,0), tmp(1,1), tmp(1,2),     0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),  0.03,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  // Joint2 to Joint3
+  tmp_q = euler2Quaternion(0, 0, joint->position[2]);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),     0,
+                 tmp(1,0), tmp(1,1), tmp(1,2),     0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),  0.23,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  // Joint3 to Joint4
+  tmp_q = euler2Quaternion(0, joint->position[3], 0);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),  0.03,
+                 tmp(1,0), tmp(1,1), tmp(1,2),     0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),  0.06,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  // Joint4 to Joint5
+  tmp_q = euler2Quaternion(0, 0, joint->position[4]);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),  -0.03,
+                 tmp(1,0), tmp(1,1), tmp(1,2),      0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),   0.23,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  // Joint5 to Joint6
+  tmp_q = euler2Quaternion(0, joint->position[5], 0);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),     0,
+                 tmp(1,0), tmp(1,1), tmp(1,2),     0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),  0.03,
+                        0,        0,        0,     1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+  
+  // Joint6 to Joint7
+  tmp_q = euler2Quaternion(0, 0, joint->position[6]);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),      0,
+                 tmp(1,0), tmp(1,1), tmp(1,2),      0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),  0.135,
+                        0,        0,        0,      1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  transformatoin.matrix() = tmp_eef_mat;
+  pcl::getEulerAngles(transformatoin,roll,pitch,yaw);
+
+  pcl::console::print_info ("======================= End Effector =======================\n");
+  pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", tmp_eef_mat (0,3), tmp_eef_mat (1,3), tmp_eef_mat (2,3));
+  pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
+
+  // Joint7 to camera_link
+  tmp_q = euler2Quaternion(0, -3.14159/2, 0);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),   0.03,
+                 tmp(1,0), tmp(1,1), tmp(1,2),      0,
+                 tmp(2,0), tmp(2,1), tmp(2,2),   0.09,
+                        0,        0,        0,      1;
+  tmp_eef_mat = tmp_eef_mat*tmp_rot_mat;
+
+  // camera_link to camera_rgb_optical
+  tmp_q = euler2Quaternion(-3.14159/2, 3.14159/2, 0);
+  tmp = tmp_q.matrix();
+  tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2), 0.0,
+                  tmp(1,0), tmp(1,1), tmp(1,2), 0.0,
+                  tmp(2,0), tmp(2,1), tmp(2,2), 0.0,
+                        0,        0,        0,    1;
+  camera_rgb_optical_frame = tmp_eef_mat*tmp_rot_mat;
+}
+
+void ObjEstAction::transfer_2_robot_frame(Eigen::Matrix4f relative_transform)
+{
+  Eigen::Matrix4f item_frame;
+  Eigen::Affine3f transformatoin;
+  float roll,pitch,yaw;
+  item_frame = camera_rgb_optical_frame*relative_transform;
+  transformatoin.matrix() = item_frame;
+  pcl::getEulerAngles(transformatoin,roll,pitch,yaw);
+
+  pcl::console::print_info ("======================= Item =======================\n");
+  pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", item_frame (0,3), item_frame (1,3), item_frame (2,3));
+  pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
 }
 
 void ObjEstAction::estimate_object_pose_CG(PCT::Ptr object_cloud)

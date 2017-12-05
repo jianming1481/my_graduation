@@ -43,6 +43,7 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "*.ipp": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "numericaldiff": "cpp"
     }
 }

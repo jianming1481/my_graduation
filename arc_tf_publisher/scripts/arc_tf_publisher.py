@@ -69,13 +69,13 @@ def arm_feedback_CB(eef_pose_msg):
 
 
 if __name__ == '__main__':
-    rospy.init_node('turtle_tf_broadcaster')
+    rospy.init_node('arc_tf_broadcaster')
     rospy.Subscriber('/robotis/present_joint_states',
                      JointState,
                      Joint_feedback_CB
                      )
-    rospy.Subscriber('/robotis/fk_fb',
+    '''rospy.Subscriber('/robotis/fk_fb',
                      IK_Cmd,
                      arm_feedback_CB
-                     )
+                     )'''
     rospy.spin()

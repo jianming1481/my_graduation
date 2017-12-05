@@ -59,7 +59,7 @@ public:
     object_features (new FeatureCloudT),
     scene_features (new FeatureCloudT)
     {
-      //General parameters
+      //General parameters for Correspond grouping
       pcl::console::parse_argument (argc, argv, "--model_ss", model_ss_);
       pcl::console::parse_argument (argc, argv, "--scene_ss", scene_ss_);
       pcl::console::parse_argument (argc, argv, "--rf_rad", rf_rad_);
@@ -82,6 +82,10 @@ public:
 
       // Subscribe the point cloud from SR300
       cloud_sub = nh_.subscribe("/camera/depth_registered/points", 1, &ObjEstAction::cloudCB,this);
+
+      // Subscrib the Joint State of Robot
+      joint_state_sub = nh_.subscribe("/robotis/present_joint_states", 1, &ObjEstAction::joint_state_CB, this);
+
       segment_client = nh_.serviceClient<deeplab_resnet_pkg::Segmentation>("Semantic_Segmentation");
 
       // Test the label image is correct or not
@@ -102,6 +106,9 @@ public:
   // Callback Function for Waiting the Call of Action
   void goalCB();
 
+  // Callback Function for Subscrib Joint State of robot
+  void joint_state_CB(const sensor_msgs::JointState::ConstPtr& joint);
+
   // Callback Function for Preempt the Action
   void preemptCB();
 
@@ -117,9 +124,16 @@ public:
   // Extract the point cloud from scene_cloud based on label image
   void extract_cloud(sensor_msgs::Image label_image);
 
+  // For some calculation
+  Eigen::Quaterniond euler2Quaternion( double roll, double pitch, double yaw );
+
   // Estimate the pose of object
   void estimate_object_pose(PCT::Ptr object_cloud);
   void estimate_object_pose_CG(PCT::Ptr object_cloud);
+
+  // Transfer Relative pose between Object and Camera to Object and Robot
+  void transfer_2_robot_frame(Eigen::Matrix4f relative_transform);
+
   // Save Point Cloud Data
   void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex);
 protected:
@@ -144,6 +158,7 @@ private:
   ros::Publisher label_image_pub;
   ros::Subscriber cloud_sub;
   ros::Subscriber label_sub;
+  ros::Subscriber joint_state_sub;
   ros::ServiceClient segment_client;
 
   // For action!
@@ -165,5 +180,8 @@ private:
 
   // Index of desired label in the image
   std::vector<int> index_list;
+
+  // Transformation frame from robot_arm_base to camera_rgb_optical
+  Eigen::Matrix4f camera_rgb_optical_frame;
 };
 }
