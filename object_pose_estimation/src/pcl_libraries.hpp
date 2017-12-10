@@ -41,7 +41,9 @@ typedef pcl::FPFHSignature33 FeatureT;          // Feature type with FPFH Signat
 typedef pcl::FPFHEstimationOMP<PointNT,PointNT,FeatureT> FeatureEstimationT;
 
 typedef pcl::PointCloud<FeatureT> FeatureCloudT;// Feature Cloud Type with FPFH Signature
-typedef pcl::visualization::PointCloudColorHandlerCustom<PointNT> ColorHandlerT;
+// typedef pcl::visualization::PointCloudColorHandlerCustom<PointNT> ColorHandlerT;
+typedef pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> ColorHandlerT;
+
 
 // Define to Save Point Cloud Data
 #define SaveCloud

@@ -1,4 +1,5 @@
 #include "object_pose_estimator.hpp"
+#include "ICP_alignment.hpp"
 
 using namespace ObjEstAction_namespace;
 
@@ -192,32 +193,54 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
     // Print results
     printf ("\n");
     float roll,pitch,yaw;
-    Eigen::Matrix4f transformation = align.getFinalTransformation ();
-    transfer_2_robot_frame(transformation);
-    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation (0,0), transformation (0,1), transformation (0,2));
-    pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transformation (1,0), transformation (1,1), transformation (1,2));
-    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation (2,0), transformation (2,1), transformation (2,2));
+    Eigen::Matrix4f transformation_FPFH = align.getFinalTransformation ();
+
+    // Show rotate_matrix from FPFH
+    pcl::console::print_info ("Show rotate_matrix from FPFH\n");
+    // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (0,0), transformation_FPFH (0,1), transformation_FPFH (0,2));
+    // pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transformation_FPFH (1,0), transformation_FPFH (1,1), transformation_FPFH (1,2));
+    // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (2,0), transformation_FPFH (2,1), transformation_FPFH (2,2));
     pcl::console::print_info ("\n");
-    pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transformation (0,3), transformation (1,3), transformation (2,3));
-
-    Eigen::Vector4f centroid;
-    pcl::compute3DCentroid (*scene, centroid);
-    printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
-
+    pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transformation_FPFH (0,3), transformation_FPFH (1,3), transformation_FPFH (2,3));
     Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
-    transform_2 = transformation;
+    transform_2 = transformation_FPFH;
     pcl::getEulerAngles(transform_2,roll,pitch,yaw);
     std::cout << "Roll=" << roll << std::endl;
     std::cout << "Pitch=" << pitch << std::endl;
     std::cout << "Yaw=" << yaw << std::endl;
     pcl::console::print_info ("\n");
     pcl::console::print_info ("Inliers: %i/%i\n", align.getInliers ().size (), object->size ());
+
+    // Do ICP
+    Eigen::Matrix4f transformation_ICP;
+    Eigen::Matrix4f transformation_matrix;
+    pcl::console::print_info ("Doing ICP...\n");
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr model_PCD (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ> temp2;
+    copyPointCloud(*scene, *cloud_xyz);
+    copyPointCloud(*object_aligned, *model_PCD);
+    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_scebe.pcd", *cloud_xyz, false);  
+    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_object.pcd", *model_PCD, false);  
+    ICP_alignment my_icp;
+    my_icp.setSourceCloud(model_PCD);
+    my_icp.setTargetCloud(cloud_xyz);
+    // my_icp.align(*model_PCD);
+    printf("ICP align Score = %f\n",my_icp.getScore());
+    transformation_ICP = my_icp.getMatrix ();
+    // transformation_matrix = transformation_FPFH*transformation_ICP;
+    transformation_matrix = transformation_FPFH;
+    transfer_2_robot_frame(transformation_matrix);
+
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid (*model_PCD, centroid);
+    // printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
     
     // Show alignment
     pcl::visualization::PCLVisualizer visu("Alignment");
     visu.addCoordinateSystem (0.1, 0);
-    visu.addPointCloud (scene, ColorHandlerT (scene, 0.0, 255.0, 0.0), "scene");
-    visu.addPointCloud (object_aligned, ColorHandlerT (object_aligned, 255.0, 0.0, 0.0), "object_aligned");
+    visu.addPointCloud (cloud_xyz, ColorHandlerT (cloud_xyz, 0.0, 255.0, 0.0), "scene");
+    visu.addPointCloud (model_PCD, ColorHandlerT (model_PCD, 255.0, 0.0, 0.0), "object_aligned");
     visu.spin ();
   }
   else
@@ -331,9 +354,9 @@ void ObjEstAction::joint_state_CB(const sensor_msgs::JointState::ConstPtr& joint
   transformatoin.matrix() = tmp_eef_mat;
   pcl::getEulerAngles(transformatoin,roll,pitch,yaw);
 
-  pcl::console::print_info ("======================= End Effector =======================\n");
-  pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", tmp_eef_mat (0,3), tmp_eef_mat (1,3), tmp_eef_mat (2,3));
-  pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
+  // pcl::console::print_info ("======================= End Effector =======================\n");
+  // pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", tmp_eef_mat (0,3), tmp_eef_mat (1,3), tmp_eef_mat (2,3));
+  // pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
 
   // Joint7 to camera_link
   tmp_q = euler2Quaternion(0, -3.14159/2, 0);
