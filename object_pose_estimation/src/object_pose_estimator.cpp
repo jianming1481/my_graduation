@@ -109,7 +109,8 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
 void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
 {
   // Load the PCD model to compare how much it rotate with model
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
+  // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
+  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/trans_out_scene.pcd", *object);
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
   // Change Point cloud type from XYZRGBZ to XYZRGBANormal
@@ -220,16 +221,17 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
     pcl::PointCloud<pcl::PointXYZ> temp2;
     copyPointCloud(*scene, *cloud_xyz);
     copyPointCloud(*object_aligned, *model_PCD);
-    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_scebe.pcd", *cloud_xyz, false);  
+    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_scene.pcd", *cloud_xyz, false);  
     writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_object.pcd", *model_PCD, false);  
     ICP_alignment my_icp;
     my_icp.setSourceCloud(model_PCD);
     my_icp.setTargetCloud(cloud_xyz);
-    // my_icp.align(*model_PCD);
+    my_icp.align(*model_PCD);
     printf("ICP align Score = %f\n",my_icp.getScore());
     transformation_ICP = my_icp.getMatrix ();
-    // transformation_matrix = transformation_FPFH*transformation_ICP;
-    transformation_matrix = transformation_FPFH;
+    transformation_matrix = transformation_FPFH*transformation_ICP;
+    printRotateMatrix(transformation_matrix);
+    // transformation_matrix = transformation_FPFH;
     transfer_2_robot_frame(transformation_matrix);
 
     Eigen::Vector4f centroid;
@@ -248,6 +250,23 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
     pcl::console::print_error ("Alignment failed!\n");
     return;
   }
+}
+void ObjEstAction::printRotateMatrix (const Eigen::Matrix4f & matrix)
+{
+    float roll,pitch,yaw;
+    printf ("================= After ICP ================= \n");
+    printf ("    | %6.3f %6.3f %6.3f | \n", matrix (0, 0), matrix (0, 1), matrix (0, 2));
+    printf ("R = | %6.3f %6.3f %6.3f | \n", matrix (1, 0), matrix (1, 1), matrix (1, 2));
+    printf ("    | %6.3f %6.3f %6.3f | \n", matrix (2, 0), matrix (2, 1), matrix (2, 2));
+    printf ("Translation vector :\n");
+    printf ("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix (0, 3), matrix (1, 3), matrix (2, 3));
+    Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
+    transform_2 = matrix;
+    pcl::getEulerAngles(transform_2,roll,pitch,yaw);
+    std::cout << "Roll=" << roll << std::endl;
+    std::cout << "Pitch=" << pitch << std::endl;
+    std::cout << "Yaw=" << yaw << std::endl;
+    pcl::console::print_info ("\n");
 }
 
 Eigen::Quaterniond ObjEstAction::euler2Quaternion( double roll,

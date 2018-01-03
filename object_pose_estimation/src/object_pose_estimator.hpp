@@ -131,6 +131,9 @@ public:
   void estimate_object_pose(PCT::Ptr object_cloud);
   void estimate_object_pose_CG(PCT::Ptr object_cloud);
 
+  // Print rotation matrix
+  void printRotateMatrix (const Eigen::Matrix4f & matrix);
+
   // Transfer Relative pose between Object and Camera to Object and Robot
   void transfer_2_robot_frame(Eigen::Matrix4f relative_transform);
 

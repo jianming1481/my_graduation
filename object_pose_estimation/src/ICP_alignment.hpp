@@ -18,19 +18,27 @@ class ICP_alignment
        //icp.setMaxCorrespondenceDistance(0.01);  
        //icp.setTransformationEpsilon(1e-7);  
        //icp.setEuclideanFitnessEpsilon(1);  
-       icp.setMaximumIterations(100);  
+       icp.setMaximumIterations(50);  
     }  
   
     ~ICP_alignment () {}  
   
     void print4x4Matrix (const Eigen::Matrix4f & matrix)
     {
+        float roll,pitch,yaw;
         printf ("Show Rotation matrix from ICP\n");
         printf ("    | %6.3f %6.3f %6.3f | \n", matrix (0, 0), matrix (0, 1), matrix (0, 2));
         printf ("R = | %6.3f %6.3f %6.3f | \n", matrix (1, 0), matrix (1, 1), matrix (1, 2));
         printf ("    | %6.3f %6.3f %6.3f | \n", matrix (2, 0), matrix (2, 1), matrix (2, 2));
         printf ("Translation vector :\n");
         printf ("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix (0, 3), matrix (1, 3), matrix (2, 3));
+        Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
+        transform_2 = matrix;
+        pcl::getEulerAngles(transform_2,roll,pitch,yaw);
+        std::cout << "Roll=" << roll << std::endl;
+        std::cout << "Pitch=" << pitch << std::endl;
+        std::cout << "Yaw=" << yaw << std::endl;
+        pcl::console::print_info ("\n");
     }
     
      void setSourceCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_cloud)  
