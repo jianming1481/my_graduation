@@ -66,111 +66,111 @@ def load_data():
 
     # Search all the jpg file in directories
     ''' 1st Class: Hand Weight '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/1_hand_weight/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/1_hand_weight/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/1_hand_weight/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/1_hand_weight/*.jpg')):
         hand_weight_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/1_hand_weight/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/1_hand_weight/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/1_hand_weight/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/1_hand_weight/*.jpg')):
         hand_weight_gt_list.append(label_filename)
     hand_weight_ori_list.reverse()
     hand_weight_gt_list.reverse()
 
     ''' 2nd Class: Crayons '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/2_crayons/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/2_crayons/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/2_crayons/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/2_crayons/*.jpg')):
         crayons_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/2_crayons/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/2_crayons/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/2_crayons/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/2_crayons/*.jpg')):
         crayons_gt_list.append(label_filename)
     crayons_ori_list.reverse()
     crayons_gt_list.reverse()
     
     ''' 3rd Class: Minions '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/3_minions/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/3_minions/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/3_minions/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/3_minions/*.jpg')):
         minions_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/3_minions/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/3_minions/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/3_minions/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/3_minions/*.jpg')):
         minions_gt_list.append(label_filename)
     minions_ori_list.reverse()
     minions_gt_list.reverse()
 
     ''' 4th Class: Koopa '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/4_koopa/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/4_koopa/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/4_koopa/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/4_koopa/*.jpg')):
         koopa_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/4_koopa/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/4_koopa/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/4_koopa/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/4_koopa/*.jpg')):
         koopa_gt_list.append(label_filename)
     koopa_ori_list.reverse()
     koopa_gt_list.reverse()
 
     ''' 5th Class: Robots Everywhere '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/5_robots_everywhere/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/5_robots_everywhere/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/5_robots_everywhere/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/5_robots_everywhere/*.jpg')):
         robots_everywhere_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/5_robots_everywhere/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/5_robots_everywhere/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/5_robots_everywhere/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/5_robots_everywhere/*.jpg')):
         robots_everywhere_gt_list.append(label_filename)
     robots_everywhere_ori_list.reverse()
     robots_everywhere_gt_list.reverse()
 
     ''' 6th Class: Ice Cube '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/6_ice_cube/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/6_ice_cube/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/6_ice_cube/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/6_ice_cube/*.jpg')):
         ice_cube_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/6_ice_cube/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/6_ice_cube/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/6_ice_cube/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/6_ice_cube/*.jpg')):
         ice_cube_gt_list.append(label_filename)
     ice_cube_ori_list.reverse()
     ice_cube_gt_list.reverse()
 
     ''' 7th Class: Index Card '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/7_index_card/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/7_index_card/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/7_index_card/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/7_index_card/*.jpg')):
         index_card_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/7_index_card/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/7_index_card/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/7_index_card/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/7_index_card/*.jpg')):
         index_card_gt_list.append(label_filename)
     index_card_ori_list.reverse()
     index_card_gt_list.reverse()
 
     ''' 8th Class: Irish '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/8_irish/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/8_irish/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/8_irish/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/8_irish/*.jpg')):
         irish_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/8_irish/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/8_irish/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/8_irish/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/8_irish/*.jpg')):
         irish_gt_list.append(label_filename)
     irish_ori_list.reverse()
     irish_gt_list.reverse()
 
     ''' 9th Class: Jokes '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/9_jokes/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/9_jokes/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/9_jokes/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/9_jokes/*.jpg')):
         jokes_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/9_jokes/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/9_jokes/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/9_jokes/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/9_jokes/*.jpg')):
         jokes_gt_list.append(label_filename)
     jokes_ori_list.reverse()
     jokes_gt_list.reverse()
 
     ''' 10th Class: Robots '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/10_robots/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/10_robots/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/10_robots/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/10_robots/*.jpg')):
         robots_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/10_robots/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/10_robots/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/10_robots/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/10_robots/*.jpg')):
         robots_gt_list.append(label_filename)
     robots_ori_list.reverse()
     robots_gt_list.reverse()
 
     ''' 11th Class: tennis '''
-    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/11_tennis/*.jpg')):
-    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/11_tennis/*.jpg')):
+    # for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/ori_img/11_tennis/*.jpg')):
+    for ori_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/ori_img/11_tennis/*.jpg')):
         tennis_ori_list.append(ori_filename)
-    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/11_tennis/*.jpg')):
-    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/11_tennis/*.jpg')):
+    # for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/training_data/my_data/ori_data/label_img/11_tennis/*.jpg')):
+    for label_filename in sorted(glob.glob('/home/iclab-giga/Documents/TEST_DATA_AUG/label_img/11_tennis/*.jpg')):
         tennis_gt_list.append(label_filename)
     tennis_ori_list.reverse()
     tennis_gt_list.reverse()
@@ -213,6 +213,7 @@ def object_selector(is_empty_list):
             else:
                 break_condition = False
 
+        print counter
         if break_condition:
             break
     return select_list
@@ -383,13 +384,13 @@ def add_all_label_img(label,label_img,label_bg_img):
 
 def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
     global foto_index
-    for i in range(1,20):
+    for i in range(1,41):
         # Try to change order in every loop
         random.shuffle(background_img_list)
         tmp_rgb_obj_list,tmp_label_list = shuffle_two_list(rgb_obj_list,label_list)
         # Copy list to another new list
-        # tmp_rgb_obj_list = copy.deepcopy(rgb_obj_list)
-        # tmp_label_list = copy.deepcopy(label_list)
+        tmp_rgb_obj_list = copy.deepcopy(rgb_obj_list)
+        tmp_label_list = copy.deepcopy(label_list)
         # Copy list to another new list
         # If don't use 'copy' library, the value inside old list will change when new list change
         tmp_bg_img_list = copy.deepcopy(background_img_list)
@@ -399,7 +400,7 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
         label_bg_img = np.zeros(bg_img.shape[:2], np.uint8)
         
         while len(tmp_rgb_obj_list)!=0:
-            obj_item = tmp_rgb_obj_list.pop()
+            ori_item = tmp_rgb_obj_list.pop()
             _label = tmp_label_list.pop()
             # print _label
             # cv2.imshow('Current_process_item',ori_item)
@@ -408,6 +409,8 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
             #     if k == 27:  # Esc key to stop
             #         break
             
+            # Extract obj from shadow and make a label image
+            obj_item = extract_from_shadow(ori_item)
             # Rotate, shift, scaling item
             obj_img = rotate_translate_scale(obj_item)
             label_item = cv2.cvtColor(obj_img,cv2.COLOR_BGR2GRAY)
@@ -418,27 +421,27 @@ def multi_obj_aug(rgb_obj_list,label_list,background_img_list):
             bg_img = add_obj_with_bg(obj_img,bg_img)
             label_bg_img = add_all_label_img(_label,label_img_8UC1,label_bg_img)
         # Save list for training
-        f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','a')
-        # f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','a')
-        g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','a')
-        # g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','a')
+        # f = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/train.txt','a')
+        f = open('/home/iclab-giga/Documents/TEST_DATA_AUG/train.txt','a')
+        # g = open('/home/iclab-giga/graduate_ws/src/data_augmentation/data/val.txt','a')
+        g = open('/home/iclab-giga/Documents/TEST_DATA_AUG/val.txt','a')
         # Save Image
         if i>30:
-            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,bg_img)
             g.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
             cv2.imwrite(file_name,label_bg_img)
             g.write(file_name+"\n")
         else:
-            file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
+            # file_name = 'data/ori_img/training_data_'+str(foto_index)+'.jpg'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/ori_img/training_data_'+str(foto_index)+'.jpg'
             cv2.imwrite(file_name,bg_img)
             f.write(file_name+" ")
-            file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
-            # file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
+            # file_name = 'data/label_img/training_data_'+str(foto_index)+'.png'
+            file_name = '/home/iclab-giga/Documents/TEST_DATA_AUG/gen/label_img/training_data_'+str(foto_index)+'.png'
             cv2.imwrite(file_name,label_bg_img)
             f.write(file_name+"\n")
 
@@ -472,9 +475,6 @@ def main():
     label_image_list = []
     background_img_list = []
 
-    # Make labeled image be visualed
-    visualiz_number = 1
-
     # Read Image from List to Augment Data
     while total_list_num!=0:
         select_list = object_selector([len(hand_weight_ori_list), len(crayons_ori_list), len(minions_ori_list), len(koopa_ori_list), len(robots_everywhere_ori_list), len(ice_cube_ori_list), len(index_card_ori_list), len(irish_ori_list), len(jokes_ori_list), len(robots_ori_list), len(tennis_ori_list)])
@@ -483,47 +483,47 @@ def main():
         if select_list[0]:
             rgb_image_list.append(hand_weight_ori_list.pop())
             label_image_list.append(hand_weight_gt_list.pop())
-            label_list.append(1*visualiz_number)
+            label_list.append(1)
         if select_list[1]:
             rgb_image_list.append(crayons_ori_list.pop())
             label_image_list.append(crayons_gt_list.pop())
-            label_list.append(2*visualiz_number)
+            label_list.append(2)
         if select_list[2]:
             rgb_image_list.append(minions_ori_list.pop())
             label_image_list.append(minions_gt_list.pop())
-            label_list.append(3*visualiz_number)
+            label_list.append(3)
         if select_list[3]:
             rgb_image_list.append(koopa_ori_list.pop())
             label_image_list.append(koopa_gt_list.pop())
-            label_list.append(4*visualiz_number)
+            label_list.append(4)
         if select_list[4]:
             rgb_image_list.append(robots_everywhere_ori_list.pop())
             label_image_list.append(robots_everywhere_gt_list.pop())
-            label_list.append(5*visualiz_number)
+            label_list.append(5)
         if select_list[5]:
             rgb_image_list.append(ice_cube_ori_list.pop())
             label_image_list.append(ice_cube_gt_list.pop())
-            label_list.append(6*visualiz_number)
+            label_list.append(6)
         if select_list[6]:
             rgb_image_list.append(index_card_ori_list.pop())
             label_image_list.append(index_card_gt_list.pop())
-            label_list.append(7*visualiz_number)
+            label_list.append(7)
         if select_list[7]:
             rgb_image_list.append(irish_ori_list.pop())
             label_image_list.append(irish_gt_list.pop())
-            label_list.append(8*visualiz_number)
+            label_list.append(8)
         if select_list[8]:
             rgb_image_list.append(jokes_ori_list.pop())
             label_image_list.append(jokes_gt_list.pop())
-            label_list.append(9*visualiz_number)
+            label_list.append(9)
         if select_list[9]:
             rgb_image_list.append(robots_ori_list.pop())
             label_image_list.append(robots_gt_list.pop())
-            label_list.append(10*visualiz_number)
+            label_list.append(10)
         if select_list[10]:
             rgb_image_list.append(tennis_ori_list.pop())
             label_image_list.append(tennis_gt_list.pop())
-            label_list.append(11*visualiz_number)
+            label_list.append(11)
         print select_list
         #print label_list
         label_list.reverse()
@@ -542,11 +542,8 @@ def main():
                 Use the Original Data to Augment Data
                 Using IR_Img(Depth) to Find the ROI for Grab Cut Algorithm
             """
-            # Doing GrabCut Algorithm
-            # Extract obj from shadow and make a label image
             rect = find_ROI(label_img)
-            rgb_img = extract_from_shadow(my_grab_cut(ori_img,rect))
-            rgb_obj_list.append(rgb_img)
+            rgb_obj_list.append(my_grab_cut(ori_img,rect))
 
         while len(background_list)!=0:
             m_str = background_list.pop()
@@ -560,5 +557,5 @@ def main():
 
 if __name__ == "__main__":
     global foto_index
-    foto_index = 1
+    foto_index = 4001
     main()
