@@ -13,6 +13,7 @@
  #include <string>
 #include <boost/thread/thread.hpp>
 #include <Eigen/Core>
+#include <sensor_msgs/PointCloud2.h>
 
 // Include stuff about ROS (Include topic or service)
 #include "ros_libraries.hpp"
@@ -91,6 +92,8 @@ public:
       // Test the label image is correct or not
       label_image_pub = nh_.advertise<sensor_msgs::Image>("service_label_image", 1);
 
+      // Pub the point cloud after align
+      align_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("align_pointcloud", 1);
       // Strart action
       as_.start();
       ROS_INFO("Obj_estimate is ready!");
@@ -135,7 +138,7 @@ public:
   void printRotateMatrix (const Eigen::Matrix4f & matrix);
 
   // Transfer Relative pose between Object and Camera to Object and Robot
-  void transfer_2_robot_frame(Eigen::Matrix4f relative_transform);
+  Eigen::Matrix4f transfer_2_robot_frame(Eigen::Matrix4f relative_transform,Eigen::Vector4f centroid);
 
   // Save Point Cloud Data
   void write_pcd_2_rospack(PCT::Ptr cloud, std::string f_name,bool breakup_with_ex);
@@ -143,6 +146,7 @@ protected:
 
 private:
   //------PCL--------//
+  sensor_msgs::PointCloud2 seg_msg;
   // The Point Cloud Data of Whole Scene
   PCT::Ptr scene_cloud ;
   // The Point Cloud to Storage Desired Object
@@ -159,6 +163,7 @@ private:
   //------ROS--------//
   ros::NodeHandle nh_;
   ros::Publisher label_image_pub;
+  ros::Publisher align_pub_;
   ros::Subscriber cloud_sub;
   ros::Subscriber label_sub;
   ros::Subscriber joint_state_sub;
@@ -186,5 +191,8 @@ private:
 
   // Transformation frame from robot_arm_base to camera_rgb_optical
   Eigen::Matrix4f camera_rgb_optical_frame;
+
+  // OUTPUT pose
+  geometry_msgs::Twist obj_pose;
 };
 }

@@ -20,7 +20,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/surface/mls.h>
 #include <pcl/kdtree/kdtree_flann.h>
-
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/conditional_removal.h>
 
 #include <pcl/correspondence.h>
 #include <pcl/features/shot_omp.h>
@@ -87,7 +88,7 @@ float scene_ss_ (0.01f);
 float rf_rad_ (0.015f);
 float descr_rad_ (0.02f);
 float cg_size_ (0.01f);
-float cg_thresh_ (4.0f);
+float cg_thresh_ (3.0f);
 int icp_max_iter_ (5);
 float icp_corr_distance_ (0.005f);
 float hv_clutter_reg_ (5.0f);
