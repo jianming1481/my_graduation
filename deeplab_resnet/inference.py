@@ -23,8 +23,11 @@ IMG_MEAN = np.array((104.00698793,116.66876762,122.67891434), dtype=np.float32)
     
 NUM_CLASSES = 6
 SAVE_DIR = './output/'
-IMG_DIR = '/home/iclab-gtx1080/Desktop/test2.jpg'
-MODEL_DIR = '/home/iclab-gtx1080/graduation_ws/src/my_graduation/deeplab_resnet/snapshots/model.ckpt-200000'
+#IMG_DIR = '/home/iclab-giga/Desktop/test2.jpg'
+#IMG_DIR = '/home/iclab-giga/Pictures/Webcam/black_bg.jpg'
+IMG_DIR = '/home/iclab-giga/Pictures/Webcam/cam_TCP.jpg'
+MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-200000'
+#MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-38000'
 
 def get_arguments():
     """Parse all the arguments provided from the CLI.

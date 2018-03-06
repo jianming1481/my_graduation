@@ -38,6 +38,8 @@ SAVE_DIR = './output/'
 IMG_DIR = '/home/iclab-gtx1080/Desktop/test2.jpg'
 # MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-90000'
 MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-200000'
+# MODEL_DIR = '/home/iclab-giga/graduate_ws/src/deeplab_resnet/snapshots/model.ckpt-38000'
+
 
 show_img = 0
 img = None

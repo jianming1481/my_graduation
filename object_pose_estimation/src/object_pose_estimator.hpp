@@ -130,7 +130,7 @@ public:
   // Estimate the pose of object
   void estimate_object_pose(PCT::Ptr object_cloud);
   void estimate_object_pose_CG(PCT::Ptr object_cloud);
-
+  void do_ICP(PCT::Ptr object_cloud);
   // Print rotation matrix
   void printRotateMatrix (const Eigen::Matrix4f & matrix);
 

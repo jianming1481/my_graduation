@@ -102,15 +102,69 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
 #ifdef SaveCloud
   write_pcd_2_rospack(m_cloud,"m_cloud.pcd",false);
 #endif
+  do_ICP(m_cloud);
   estimate_object_pose(m_cloud);
   // estimate_object_pose_CG(m_cloud);
+}
+
+void ObjEstAction::do_ICP(PCT::Ptr object_cloud){
+  switch(goal_label){
+    case 1:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
+      break;
+    case 2:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Crayons.pcd", *object);
+      break;
+    case 5:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Robots_Everywhere.pcd", *object);
+      break;
+  }
+  Eigen::Matrix4f transformation_ICP;
+  Eigen::Matrix4f transformation_matrix;
+  pcl::console::print_info ("Doing ICP...\n");
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr model_PCD (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ> temp2;
+  copyPointCloud(*m_cloud, *cloud_xyz);
+  copyPointCloud(*object, *model_PCD);
+  // writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_scene.pcd", *cloud_xyz, false);  
+  // writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_object.pcd", *model_PCD, false);  
+  ICP_alignment my_icp;
+  my_icp.setSourceCloud(model_PCD);
+  my_icp.setTargetCloud(cloud_xyz);
+  my_icp.align(*model_PCD);
+  printf("ICP align Score = %f\n",my_icp.getScore());
+  transformation_ICP = my_icp.getMatrix ();
+  printRotateMatrix(transformation_matrix);
+  transfer_2_robot_frame(transformation_matrix);
+
+  Eigen::Vector4f centroid;
+  pcl::compute3DCentroid (*model_PCD, centroid);
+  // printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
+  
+  // Show alignment
+  pcl::visualization::PCLVisualizer visu("Alignment");
+  visu.addCoordinateSystem (0.1, 0);
+  visu.addPointCloud (cloud_xyz, ColorHandlerT (cloud_xyz, 0.0, 255.0, 0.0), "scene");
+  visu.addPointCloud (model_PCD, ColorHandlerT (model_PCD, 255.0, 0.0, 0.0), "object_aligned");
+  visu.spin ();
 }
 
 void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
 {
   // Load the PCD model to compare how much it rotate with model
+  switch(goal_label){
+    case 1:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
+      break;
+    case 2:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Crayons.pcd", *object);
+      break;
+    case 5:
+      pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Robots_Everywhere.pcd", *object);
+      break;
+  }
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
-  pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/trans_out_scene.pcd", *object);
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
   // Change Point cloud type from XYZRGBZ to XYZRGBANormal
