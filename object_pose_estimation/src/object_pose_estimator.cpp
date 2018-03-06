@@ -33,10 +33,15 @@ void ObjEstAction::goalCB()
       goal_label = Back_Ground;
   }
   state = FOTO;
+  feedback_.progress = 10;
+  as_.publishFeedback(feedback_);
 }
 
 void ObjEstAction::preemptCB()
 {
+    ROS_INFO("%s: Preempted", action_name_.c_str());
+    // set the action state to preempted
+    as_.setPreempted();
 }
 
 void ObjEstAction::cloudCB(const sensor_msgs::PointCloud2ConstPtr& input)
@@ -99,12 +104,19 @@ void ObjEstAction::extract_cloud(sensor_msgs::Image label_image)
   // Publish label image to show what we find
   label_image_pub.publish(label_image);
 
+  // Create the filtering object
+  // pcl::StatisticalOutlierRemoval<PT> sor;
+  // sor.setInputCloud (m_cloud);
+  // sor.setMeanK (50);
+  // sor.setStddevMulThresh (2.0);
+  // sor.filter (*m_cloud);
+
 #ifdef SaveCloud
   write_pcd_2_rospack(m_cloud,"m_cloud.pcd",false);
 #endif
   do_ICP(m_cloud);
   estimate_object_pose(m_cloud);
-  // estimate_object_pose_CG(m_cloud);
+  //estimate_object_pose_CG(m_cloud);
 }
 
 void ObjEstAction::do_ICP(PCT::Ptr object_cloud){
@@ -165,27 +177,25 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
       break;
   }
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/Hand_Weight1.pcd", *object);
+
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
   // Change Point cloud type from XYZRGBZ to XYZRGBANormal
   pcl::copyPointCloud(*m_cloud, *scene);
 
   std::cerr << "object before filtering: " << object->width * object->height << std::endl;
-  
-      
- 
-  
-  std::vector<int> indices_sce; 
-  pcl::removeNaNFromPointCloud(*scene,*scene, indices_sce);
-
-  // Find the package to storage the pcd file
-  path = ros::package::getPath("object_pose_estimation");
-  path.append("/pcd_file/");
-  path.append("m_cloud_removeNAN.pcd");
-
-  std::cout << "Save PCD -> " << path << std::endl;
   pcl::PCDWriter writer;
-  writer.write<PointNT> (path, *object, false);  
+
+  std::vector<int> indices_sce; 
+  // pcl::removeNaNFromPointCloud(*scene,*scene, indices_sce);
+
+  // // Find the package to storage the pcd file
+  // path = ros::package::getPath("object_pose_estimation");
+  // path.append("/pcd_file/");
+  // path.append("m_cloud_removeNAN.pcd");
+
+  // std::cout << "Save PCD -> " << path << std::endl;
+  // writer.write<PointNT> (path, *object, false);  
 
   // Downsample
   pcl::console::print_highlight ("Downsampling...\n");
@@ -198,112 +208,199 @@ void ObjEstAction::estimate_object_pose(PCT::Ptr object_cloud)
   grid.filter (*scene);
   
   std::cerr << "object after filtering: " << object->width * object->height << std::endl;
+  std::cerr << "scene after filtering: " << scene->width * scene->height << std::endl;
 
+  Eigen::Matrix4f transformation_ICP;
+  Eigen::Matrix4f transformation_matrix;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr model_PCD (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ> temp2;
 
-  // Estimate normals for object
-  pcl::console::print_highlight ("Estimating object normals...\n");
-  pcl::NormalEstimationOMP<PointNT,PointNT> nest_obj;
-  nest_obj.setRadiusSearch (0.01);
-  nest_obj.setInputCloud (object);
-  nest_obj.compute (*object);
+  pcl::console::print_info ("Doing ICP...\n");
+  copyPointCloud(*object, *model_PCD);
+  copyPointCloud(*scene, *cloud_xyz);
 
-  // Estimate normals for scene
-  pcl::console::print_highlight ("Estimating scene normals...\n");
-  pcl::NormalEstimationOMP<PointNT,PointNT> nest;
-  nest.setRadiusSearch (0.01);
-  nest.setInputCloud (scene);
-  nest.compute (*scene);
+  // build the condition
+  pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond (new pcl::ConditionAnd<pcl::PointXYZ> ());
+  range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("z", pcl::ComparisonOps::GT, 0.0)));
+  range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("z", pcl::ComparisonOps::LT, 0.8)));
+  // build the filter
+  pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
+  condrem.setCondition (range_cond);
+  condrem.setInputCloud (cloud_xyz);
+  condrem.setKeepOrganized(true);
+  // apply filter
+  condrem.filter (*cloud_xyz);
+  pcl::removeNaNFromPointCloud(*cloud_xyz,*cloud_xyz, indices_sce);
+
+  Eigen::Vector4f centroid;
+  pcl::compute3DCentroid (*cloud_xyz, centroid);
+  printf("scene center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0), centroid(1), centroid(2));
+  // Eigen::Matrix4f transform_1 = Eigen::Matrix4f::Identity();
+  // float theta = 0; // The angle of rotation in radians
+  // transform_1 (0,0) = cos (theta);
+  // transform_1 (0,1) = -sin(theta);
+  // transform_1 (1,0) = sin (theta);
+  // transform_1 (1,1) = cos (theta);
+
+  // // Define a translation of 2.5 meters on the x axis.
+  // transform_1 (0,3) = centroid(0);
+  // transform_1 (1,3) = centroid(1);
+  // transform_1 (2,3) = centroid(2);
+  // pcl::transformPointCloud (*model_PCD, *model_PCD, transform_1);
+  // pcl::compute3DCentroid (*model_PCD, centroid);
+  // printf("model center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0), centroid(1), centroid(2));
+  ICP_alignment my_icp;
+  my_icp.setTargetCloud(cloud_xyz);
+  my_icp.setSourceCloud(model_PCD);
+  my_icp.align(temp2);
+
   
-  // Estimate features
-  pcl::console::print_highlight ("Estimating features...\n");
-  FeatureEstimationT fest;
-  fest.setRadiusSearch (0.025);
-  fest.setInputCloud (object);
-  fest.setInputNormals (object);
-  fest.compute (*object_features);
-  fest.setInputCloud (scene);
-  fest.setInputNormals (scene);
-  fest.compute (*scene_features);
+  printf("ICP align Score = %f\n",my_icp.getScore());
+  transformation_ICP = my_icp.getMatrix ();
+  // printRotateMatrix(transformation_ICP);
+  // transformation_ICP = transfer_2_robot_frame(transformation_ICP,centroid);
+  // transformPointCloud(temp2,temp2,transformation_ICP);
+
+  // pcl::compute3DCentroid (temp2, centroid);
+  // printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0), centroid(1), centroid(2));
+
+  //seg_msg.header.frame_id = "robot_arm_base";
+  pcl::toROSMsg(temp2, seg_msg);
+  seg_msg.header.frame_id = "camera_rgb_optical_frame";
+  align_pub_.publish(seg_msg);
+  writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_model.pcd", temp2, false);  
+  writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_scene_object.pcd", *cloud_xyz, false);  
+  //----------------------- FOR FPFH and RANSAC------------------------------
+  // // Estimate normals for object
+  // pcl::console::print_highlight ("Estimating object normals...\n");
+  // pcl::NormalEstimationOMP<PointNT,PointNT> nest_obj;
+  // nest_obj.setRadiusSearch (0.01);
+  // nest_obj.setInputCloud (object);
+  // nest_obj.compute (*object);
+
+  // // Estimate normals for scene
+  // pcl::console::print_highlight ("Estimating scene normals...\n");
+  // pcl::NormalEstimationOMP<PointNT,PointNT> nest;
+  // nest.setRadiusSearch (0.01);
+  // nest.setInputCloud (scene);
+  // nest.compute (*scene);
   
-  // Perform alignment
-  pcl::console::print_highlight ("Starting alignment...\n");
-  pcl::SampleConsensusPrerejective<PointNT,PointNT,FeatureT> align;
-  align.setInputSource (object);
-  align.setSourceFeatures (object_features);
-  align.setInputTarget (scene);
-  align.setTargetFeatures (scene_features);
-  align.setMaximumIterations (500000*10); // Number of RANSAC iterations
-  align.setNumberOfSamples (5); // Number of points to sample for generating/prerejecting a pose
-  align.setCorrespondenceRandomness (5); // Number of nearest features to use
-  align.setSimilarityThreshold (0.9f); // Polygonal edge length similarity threshold
-  align.setMaxCorrespondenceDistance (2.5f * leaf); // Inlier threshold
-  align.setInlierFraction (0.25f); // Required inlier fraction for accepting a pose hypothesis
-  {
-    pcl::ScopeTime t("Alignment");
-    align.align (*object_aligned);
-  }
+  // // Estimate features
+  // pcl::console::print_highlight ("Estimating features...\n");
+  // FeatureEstimationT fest;
+  // fest.setRadiusSearch (0.025);
+  // fest.setInputCloud (object);
+  // fest.setInputNormals (object);
+  // fest.compute (*object_features);
+  // fest.setInputCloud (scene);
+  // fest.setInputNormals (scene);
+  // fest.compute (*scene_features);
   
-  if (align.hasConverged ())
-  {
-    // Print results
-    printf ("\n");
-    float roll,pitch,yaw;
-    Eigen::Matrix4f transformation_FPFH = align.getFinalTransformation ();
+  // // Perform alignment
+  // pcl::console::print_highlight ("Starting alignment...\n");
+  // pcl::SampleConsensusPrerejective<PointNT,PointNT,FeatureT> align;
+  // align.setInputSource (object);
+  // align.setSourceFeatures (object_features);
+  // align.setInputTarget (scene);
+  // align.setTargetFeatures (scene_features);
+  // align.setMaximumIterations (500000*10); // Number of RANSAC iterations
+  // align.setNumberOfSamples (7); // Number of points to sample for generating/prerejecting a pose
+  // align.setCorrespondenceRandomness (7); // Number of nearest features to use
+  // align.setSimilarityThreshold (0.9f); // Polygonal edge length similarity threshold
+  // align.setMaxCorrespondenceDistance (2.5f * leaf); // Inlier threshold
+  // align.setInlierFraction (0.25f); // Required inlier fraction for accepting a pose hypothesis
+  // {
+  //   pcl::ScopeTime t("Alignment");
+  //   align.align (*object_aligned);
+  // }
+  
+  // if (align.hasConverged ())
+  // {
+  //   // Print results
+  //   printf ("\n");
+  //   float roll,pitch,yaw;
+  //   Eigen::Matrix4f transformation_FPFH = align.getFinalTransformation ();
 
-    // Show rotate_matrix from FPFH
-    pcl::console::print_info ("Show rotate_matrix from FPFH\n");
-    // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (0,0), transformation_FPFH (0,1), transformation_FPFH (0,2));
-    // pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transformation_FPFH (1,0), transformation_FPFH (1,1), transformation_FPFH (1,2));
-    // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (2,0), transformation_FPFH (2,1), transformation_FPFH (2,2));
-    pcl::console::print_info ("\n");
-    pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transformation_FPFH (0,3), transformation_FPFH (1,3), transformation_FPFH (2,3));
-    Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
-    transform_2 = transformation_FPFH;
-    pcl::getEulerAngles(transform_2,roll,pitch,yaw);
-    std::cout << "Roll=" << roll << std::endl;
-    std::cout << "Pitch=" << pitch << std::endl;
-    std::cout << "Yaw=" << yaw << std::endl;
-    pcl::console::print_info ("\n");
-    pcl::console::print_info ("Inliers: %i/%i\n", align.getInliers ().size (), object->size ());
+  //   // Show rotate_matrix from FPFH
+  //   pcl::console::print_info ("Show rotate_matrix from FPFH\n");
+  //   // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (0,0), transformation_FPFH (0,1), transformation_FPFH (0,2));
+  //   // pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transformation_FPFH (1,0), transformation_FPFH (1,1), transformation_FPFH (1,2));
+  //   // pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transformation_FPFH (2,0), transformation_FPFH (2,1), transformation_FPFH (2,2));
+  //   pcl::console::print_info ("\n");
+  //   pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transformation_FPFH (0,3), transformation_FPFH (1,3), transformation_FPFH (2,3));
+  //   Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
+  //   transform_2 = transformation_FPFH;
+  //   pcl::getEulerAngles(transform_2,roll,pitch,yaw);
+  //   std::cout << "Roll=" << roll << std::endl;
+  //   std::cout << "Pitch=" << pitch << std::endl;
+  //   std::cout << "Yaw=" << yaw << std::endl;
+  //   pcl::console::print_info ("\n");
+  //   pcl::console::print_info ("Inliers: %i/%i\n", align.getInliers ().size (), object->size ());
 
-    // Do ICP
-    Eigen::Matrix4f transformation_ICP;
-    Eigen::Matrix4f transformation_matrix;
-    pcl::console::print_info ("Doing ICP...\n");
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr model_PCD (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ> temp2;
-    copyPointCloud(*scene, *cloud_xyz);
-    copyPointCloud(*object_aligned, *model_PCD);
-    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_scene.pcd", *cloud_xyz, false);  
-    writer.write<pcl::PointXYZ> ("/home/iclab-giga/Documents/hand_weight_scene/trans_out_object.pcd", *model_PCD, false);  
-    ICP_alignment my_icp;
-    my_icp.setSourceCloud(model_PCD);
-    my_icp.setTargetCloud(cloud_xyz);
-    my_icp.align(*model_PCD);
-    printf("ICP align Score = %f\n",my_icp.getScore());
-    transformation_ICP = my_icp.getMatrix ();
-    transformation_matrix = transformation_FPFH*transformation_ICP;
-    printRotateMatrix(transformation_matrix);
-    // transformation_matrix = transformation_FPFH;
-    transfer_2_robot_frame(transformation_matrix);
+  //   // Do ICP
+  //   pcl::console::print_info ("Doing ICP...\n");
+  //   copyPointCloud(*scene, *cloud_xyz);
+  //   copyPointCloud(*object_aligned, *model_PCD);
+  //   writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_scene.pcd", *cloud_xyz, false);  
+  //   writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_object.pcd", *model_PCD, false);  
+  //   ICP_alignment my_icp;
+  //   my_icp.setSourceCloud(cloud_xyz);
+  //   my_icp.setTargetCloud(model_PCD);
+  //   my_icp.align(*cloud_xyz);
+  //   pcl::toROSMsg(*model_PCD, seg_msg);
+  //   seg_msg.header.frame_id = "camera_rgb_optical_frame";
+  //   align_pub_.publish(seg_msg);
+  //   printf("ICP align Score = %f\n",my_icp.getScore());
+  //   transformation_ICP = my_icp.getMatrix ();
+  //   transformation_matrix = transformation_FPFH*transformation_ICP;
+  //   printRotateMatrix(transformation_matrix);
+  //   // transformation_matrix = transformation_FPFH;
+  //   transfer_2_robot_frame(transformation_matrix);
 
-    Eigen::Vector4f centroid;
-    pcl::compute3DCentroid (*model_PCD, centroid);
-    // printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
+  //   Eigen::Vector4f centroid;
+  //   pcl::compute3DCentroid (*model_PCD, centroid);
+  //   // printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
     
-    // Show alignment
-    pcl::visualization::PCLVisualizer visu("Alignment");
-    visu.addCoordinateSystem (0.1, 0);
-    visu.addPointCloud (cloud_xyz, ColorHandlerT (cloud_xyz, 0.0, 255.0, 0.0), "scene");
-    visu.addPointCloud (model_PCD, ColorHandlerT (model_PCD, 255.0, 0.0, 0.0), "object_aligned");
-    visu.spin ();
-  }
-  else
-  {
-    pcl::console::print_error ("Alignment failed!\n");
-    return;
-  }
+  //   // Send back result
+  //   if (!as_.isActive())
+  //     return;
+  //   obj_pose.linear.x = 0;
+  //   result_.object_pose = obj_pose;
+  //   as_.setSucceeded(result_);
+  //   // Show alignment
+  //   // pcl::visualization::PCLVisualizer visu("Alignment");
+  //   // visu.addCoordinateSystem (0.1, 0);
+  //   // visu.addPointCloud (cloud_xyz, ColorHandlerT (cloud_xyz, 0.0, 255.0, 0.0), "scene");
+  //   // visu.addPointCloud (model_PCD, ColorHandlerT (model_PCD, 255.0, 0.0, 0.0), "object_aligned");
+  //   // visu.spin ();
+  // }
+  // else
+  // {
+  //   pcl::console::print_error ("Alignment failed!\n");
+  //   pcl::console::print_info ("Doing ICP...\n");
+  //   copyPointCloud(*scene, *cloud_xyz);
+  //   copyPointCloud(*object, *model_PCD);
+  //   ICP_alignment my_icp;
+  //   my_icp.setTargetCloud(model_PCD);
+  //   my_icp.setSourceCloud(cloud_xyz);
+  //   my_icp.align(*model_PCD);
+    
+  //   printf("ICP align Score = %f\n",my_icp.getScore());
+  //   transformation_ICP = my_icp.getMatrix ();
+  //   printRotateMatrix(transformation_ICP);
+  //   transformation_ICP = transfer_2_robot_frame(transformation_ICP);
+  //   transformPointCloud(*model_PCD,*model_PCD,transformation_ICP);
+  //   pcl::toROSMsg(*model_PCD, seg_msg);
+  //   Eigen::Vector4f centroid;
+  //   pcl::compute3DCentroid (*model_PCD, centroid);
+  //   printf("center point = < %6.3f, %6.3f, %6.3f >\n", centroid(0)*100, centroid(1)*100, centroid(2)*100);
+  //   writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_model.pcd", *model_PCD, false);  
+  //   writer.write<pcl::PointXYZ> ("/home/iclab/Documents/hand_weight_scene/trans_out_scene_object.pcd", *cloud_xyz, false);  
+  //   seg_msg.header.frame_id = "robot_arm_base";
+  //   align_pub_.publish(seg_msg);
+  //   return;
+  // }
 }
 void ObjEstAction::printRotateMatrix (const Eigen::Matrix4f & matrix)
 {
@@ -432,7 +529,7 @@ void ObjEstAction::joint_state_CB(const sensor_msgs::JointState::ConstPtr& joint
   // pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
 
   // Joint7 to camera_link
-  tmp_q = euler2Quaternion(0, -3.14159/2, 0);
+  tmp_q = euler2Quaternion(0, 0, 0);
   tmp = tmp_q.matrix();
   tmp_rot_mat << tmp(0,0), tmp(0,1), tmp(0,2),   0.03,
                  tmp(1,0), tmp(1,1), tmp(1,2),      0,
@@ -450,18 +547,43 @@ void ObjEstAction::joint_state_CB(const sensor_msgs::JointState::ConstPtr& joint
   camera_rgb_optical_frame = tmp_eef_mat*tmp_rot_mat;
 }
 
-void ObjEstAction::transfer_2_robot_frame(Eigen::Matrix4f relative_transform)
+Eigen::Matrix4f ObjEstAction::transfer_2_robot_frame(Eigen::Matrix4f relative_transform, Eigen::Vector4f centroid)
 {
   Eigen::Matrix4f item_frame;
+  Eigen::Matrix4f tmp_frame;
   Eigen::Affine3f transformatoin;
   float roll,pitch,yaw;
-  item_frame = camera_rgb_optical_frame*relative_transform;
+  // Transpose
+  tmp_frame(0,0) = relative_transform(0,0);
+  tmp_frame(0,1) = relative_transform(1,0);
+  tmp_frame(0,2) = relative_transform(2,0);
+  tmp_frame(1,0) = relative_transform(0,1);
+  tmp_frame(1,1) = relative_transform(1,1);
+  tmp_frame(1,2) = relative_transform(2,1);
+  tmp_frame(2,0) = relative_transform(0,2);
+  tmp_frame(2,1) = relative_transform(1,2);
+  tmp_frame(2,2) = relative_transform(2,2);
+  
+  // Translation
+  tmp_frame(0,3) = relative_transform(0,3)*-1.0;
+  tmp_frame(1,3) = relative_transform(1,3)*-1.0;
+  tmp_frame(2,3) = relative_transform(2,3)*-1.0;
+
+  tmp_frame(3,0) = 0;
+  tmp_frame(3,1) = 0;
+  tmp_frame(3,2) = 0;
+  tmp_frame(3,3) = 1;
+
+  item_frame = camera_rgb_optical_frame*tmp_frame;
   transformatoin.matrix() = item_frame;
   pcl::getEulerAngles(transformatoin,roll,pitch,yaw);
 
   pcl::console::print_info ("======================= Item =======================\n");
   pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", item_frame (0,3), item_frame (1,3), item_frame (2,3));
+  pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll/3.1415926*180, pitch/3.1415926*180, yaw/3.1415926*180);
   pcl::console::print_info ("roll, pitch, yaw = < %0.3f, %0.3f, %0.3f >\n", roll, pitch, yaw);
+
+  return item_frame;
 }
 
 void ObjEstAction::estimate_object_pose_CG(PCT::Ptr object_cloud)
@@ -476,7 +598,7 @@ void ObjEstAction::estimate_object_pose_CG(PCT::Ptr object_cloud)
   pcl::PointCloud<DescriptorType>::Ptr scene_descriptors (new pcl::PointCloud<DescriptorType> ());
 
   // Load the PCD model to compare how much it rotate with model
-  pcl::io::loadPCDFile<PT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/model/hand_weight_model.pcd", *scene);
+  pcl::io::loadPCDFile<PT> ("/home/iclab/graduation_ws/src/my_graduation/object_pose_estimation/pcd_file/model/hand_weight_model.pcd", *scene);
   // pcl::io::loadPCDFile<PointNT> ("/home/iclab-giga/graduate_ws/src/object_pose_estimation/pcd_file/m_cloud.pcd", *object);
 
   // Change Point cloud type from XYZRGBZ to XYZRGBANormal

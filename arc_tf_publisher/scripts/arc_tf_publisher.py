@@ -54,7 +54,7 @@ def Joint_feedback_CB(eef_pose_msg):
 		     "Joint_6")
 
     br.sendTransform((0.03,0,0.09),
-                     tf.transformations.quaternion_from_euler(0,-PI/2,0),
+                     tf.transformations.quaternion_from_euler(0,0,0),
                      rospy.Time.now(),
                      "camera_link",
 		     "Joint_7")
